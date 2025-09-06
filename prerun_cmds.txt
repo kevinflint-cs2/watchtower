@@ -1,0 +1,2 @@
+az provider register -n Microsoft.CognitiveServices # Enable CognitiveServices
+az ad signed-in-user show --query id -o tsv # Get your user principle id to later add to get AI Project Manager
