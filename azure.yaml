@@ -1,9 +1,0 @@
-name: ${AZURE_APP_NAME}
-infra:
-  provider: bicep
-  path: infra
-  parameters:
-    rgName: ${AZURE_RESOURCE_GROUP}
-    location: ${AZURE_LOCATION}
-    namePrefix: ${AZURE_APP_NAME}
-    environment: ${AZURE_ENV_NAME}
