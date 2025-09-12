@@ -1,0 +1,35 @@
+# .pre-commit-config.yaml
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.4
+    hooks:
+      # fmt = "ruff format ."
+      - id: ruff-format
+        # default: formats staged files
+
+      # fix = "ruff check . --fix"
+      - id: ruff
+        name: ruff-fix
+        args: ["--fix"]
+
+      # lint = "ruff check ."
+      - id: ruff
+        name: ruff-lint
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.10.0
+    hooks:
+      # typecheck = "mypy src tests"
+      - id: mypy
+        args: ["src", "tests"]
+        pass_filenames: false   # run on these paths, not just changed files
+
+  # test = "pytest"  (run full test suite on push)
+  - repo: local
+    hooks:
+      - id: pytest
+        name: pytest (full suite)
+        entry: pytest
+        language: system
+        pass_filenames: false   # run entire suite
+        stages: [pre-push]          # recommend pre-push (move to 'commit' if you prefer)

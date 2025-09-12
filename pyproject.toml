@@ -1,0 +1,67 @@
+[project]
+name = "watchtower"
+version = "0.1.0"
+description = "An Agent AI for Incident Response that triages alerts, auto-enriches evidence, and orchestrates approved containment actions—under human-in-the-loop control—to cut MTTA/MTTR, standardize response, and keep a complete audit trail."
+packages = [{ include = "watchtower", from = "src" }]
+authors = [
+    {name = "kevinflint-cs2",email = "kevin.flint@cybersecuritysquared.com"}
+]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = " >=3.11,<4.0"
+dependencies = [
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.4.2"
+pytest-cov = "^7.0.0"
+ruff = "^0.13.0"
+black = "^25.1.0"
+mypy = "^1.18.1"
+pre-commit = "^4.3.0"
+poethepoet = "^0.37.0"
+commitizen = "^4.9.1"
+
+[tool.pytest.ini_options]
+addopts = "-q --cov=watchtower --cov-report=term-missing"
+testpaths = ["tests"]
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E","F","I","UP","B"]
+# ignore = []
+# fixable = ["ALL"]     # optional
+# unfixable = []        # optional
+
+[tool.ruff.format]
+# optional formatter settings
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+mypy_path = ["src"]
+
+[tool.poetry.scripts]
+hello = "watchtower.__main__:main"
+
+[tool.poe.tasks]
+fmt = "ruff format ."
+fix = "ruff check . --fix"
+lint = "ruff check ."
+typecheck = "mypy src tests"
+test = "pytest"
+
+[tool.poe.tasks.all]
+sequence = ["fmt", "fix", "lint", "typecheck", "test"]
