@@ -9,7 +9,7 @@
 - Ruff (lint + format), mypy (types), pytest + pytest-cov (tests)
 - poe-the-poet (tasks), pre-commit (hooks)
 - Bicep + `az bicep` (infra authoring & linting)
-- **GitHub Actions**: `azure.yml` to deploy Bicep files (CI/CD to Azure)
+- Azure Developer CLI: `azure.yml` to deploy Bicep files (CI/CD to Azure)
 
 ## Modules / Key libs
 - <runtime deps, only the important ones>  
