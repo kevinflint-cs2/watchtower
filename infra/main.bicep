@@ -27,8 +27,6 @@ var keyVaultName    = toLower('${namePrefix}-kv-${suffix}')
 var appConfigName   = toLower('${namePrefix}-appcs-${suffix}') // common app config prefix
 var foundryAccountName = toLower('${namePrefix}-aif-${suffix}')
 var foundryProjectName = toLower('${namePrefix}-proj-${suffix}')
-var aoaiResourceName = toLower('${namePrefix}-aoai-${suffix}')
-
 
 resource rg 'Microsoft.Resources/resourceGroups@2024-03-01' = {
   name: rgName
@@ -68,16 +66,6 @@ module aiFoundry './modules/ai-foundry.bicep' = {
     workspaceId: observability.outputs.workspaceId
     projectManagerPrincipalIds: projectManagerPrincipalIds
     projectUserPrincipalIds: projectUserPrincipalIds
-  }
-}
-
-module aoaiApiKeyConn './modules/ai-connections-aoai-apikey.bicep' = {
-  name: 'aoai-apikey-conn'
-  scope: resourceGroup(rgName)
-  params: {
-    aiAccountName: foundryAccountName
-    aiProjectName: foundryProjectName
-    aoaiResourceName: aoaiResourceName
   }
 }
 
