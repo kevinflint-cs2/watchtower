@@ -13,20 +13,23 @@ param namePrefix string
 @allowed(['dev','test','prod'])
 param environment string
 
+@description('Random string to ensure globally unique resource names')
+param rand string
+
 @description('Principal IDs to grant Azure AI Project Manager at the project scope')
 param projectManagerPrincipalIds array = []
 
 @description('Principal IDs to grant Azure AI User at the project scope')
 param projectUserPrincipalIds array = []
 
-var suffix = toLower('${environment}-${replace(location, ' ', '')}')
-var workspaceName   = '${namePrefix}-la-${suffix}'       // e.g., watchtower-la-dev-eastus
-var appInsightsName = '${namePrefix}-appi-${suffix}'     // e.g., watchtower-appi-dev-eastus
-var diagName        = '${namePrefix}-diag-${suffix}'
-var keyVaultName    = toLower('${namePrefix}-kv-${suffix}')
-var appConfigName   = toLower('${namePrefix}-appcs-${suffix}') // common app config prefix
-var foundryAccountName = toLower('${namePrefix}-aif-${suffix}')
-var foundryProjectName = toLower('${namePrefix}-proj-${suffix}')
+var suffix = toLower('${environment}')
+var workspaceName        = toLower('${namePrefix}-laws-${suffix}')
+var appInsightsName      = toLower('${namePrefix}-appi-${suffix}')
+var diagName             = toLower('${namePrefix}-diag-${suffix}')
+var keyVaultName         = toLower('${namePrefix}-kv-${suffix}-${rand}')
+var appConfigName        = toLower('${namePrefix}-appconf-${suffix}')
+var foundryAccountName   = toLower('${namePrefix}-aifa-${suffix}')
+var foundryProjectName   = toLower('${namePrefix}-aifp-${suffix}')
 
 resource rg 'Microsoft.Resources/resourceGroups@2024-03-01' = {
   name: rgName
@@ -69,10 +72,24 @@ module aiFoundry './modules/ai-foundry.bicep' = {
   }
 }
 
+module chat4oMini './modules/aoai-model-chatgpt4o-mini.bicep' = {
+  name: 'chatgpt4o-mini-deployment'
+  scope: resourceGroup(rgName)
+  params: {
+    location: location
+    accountName: foundryAccountName
+    // Optional overrides:
+    // deploymentName: 'gpt-4o-mini'
+    // modelVersion: '2024-07-18'
+    // skuName: 'GlobalStandard'
+    // capacity: 2
+  }
+}
+
 // Subscription Activity Logs -> Log Analytics workspace (SUBSCRIPTION SCOPE)
 resource subDiag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
   name: diagName
-  scope: subscription()
+  // No scope here because file targetScope is already 'subscription'
   properties: {
     workspaceId: observability.outputs.workspaceId
     logs: [
@@ -84,7 +101,7 @@ resource subDiag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
   }
 }
 
-output resourceGroupId string     = rg.id
-output workspaceId string         = observability.outputs.workspaceId
-output appInsightsName string     = appInsightsName
-output subscriptionDiagName string = subDiag.name
+output resourceGroupId string       = rg.id
+output workspaceId string           = observability.outputs.workspaceId
+output appInsightsName string       = appInsightsName
+output subscriptionDiagName string  = subDiag.name

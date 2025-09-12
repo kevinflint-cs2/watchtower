@@ -62,6 +62,10 @@ fix = "ruff check . --fix"
 lint = "ruff check ."
 typecheck = "mypy src tests"
 test = "pytest"
+envsync = 'azd env set --file .env -e dev'
+rg = "az group create --name watchtower-rg-dev --location eastus2"
+build = "azd up"
+destroy = "az group delete --name watchtower-rg-dev --yes --no-wait"
 
 [tool.poe.tasks.all]
 sequence = ["fmt", "fix", "lint", "typecheck", "test"]

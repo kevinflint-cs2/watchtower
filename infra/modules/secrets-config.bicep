@@ -22,7 +22,7 @@ resource kv 'Microsoft.KeyVault/vaults@2023-07-01' = {
       family: 'A'
     }
     // Soft-delete is always on for new vaults; keep purge protection enabled for compliance
-    enablePurgeProtection: true
+    // enablePurgeProtection: true // Remove for compliance requirements
     softDeleteRetentionInDays: 90
     publicNetworkAccess: 'Enabled'
     accessPolicies: []
@@ -35,7 +35,7 @@ resource kv 'Microsoft.KeyVault/vaults@2023-07-01' = {
 
 // KV → Log Analytics diagnostics
 resource kvDiag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
-  name: 'kv-to-la'
+  name: 'kv-to-laws'
   scope: kv
   properties: {
     workspaceId: workspaceId
