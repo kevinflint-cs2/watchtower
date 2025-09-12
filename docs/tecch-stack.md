@@ -7,7 +7,8 @@
 - Poetry (deps, venv)
 - Ruff (lint + format), mypy (types), pytest + pytest-cov (tests)
 - poe-the-poet (tasks), pre-commit (hooks)
-- Bicep + `az bicep` (infra)
+- Bicep + `az bicep` (infra authoring & linting)
+- **GitHub Actions**: `azure.yml` to deploy Bicep files (CI/CD to Azure)
 
 ## Modules / Key libs
 - <runtime deps, only the important ones>  
@@ -19,9 +20,10 @@
 - Code style: `ruff format`, `ruff check --fix`, strict mypy
 
 ## Folder Structure
-- .devcontainer for codespace configuration
-- ./docs for documentation
-- ./infra for bicep infrastructure and parameter files
-- ./src for python code
-- ./src/watchtower for watchtower application
-- ./tests for python tests
+- `.devcontainer/` — Codespaces configuration
+- `docs/` — Documentation
+- `infra/` — Bicep infrastructure + parameter files
+- `src/` — Python code
+- `src/watchtower/` — Watchtower application
+- `tests/` — Python tests
+- `.github/workflows/azure.yml` — GitHub Actions workflow that **deploys Bicep** to Azure
