@@ -4,6 +4,7 @@
 - Python (3.11)
 
 ## Tooling
+- **GitHub Codespaces (IDE)** with dev containers
 - Poetry (deps, venv)
 - Ruff (lint + format), mypy (types), pytest + pytest-cov (tests)
 - poe-the-poet (tasks), pre-commit (hooks)
