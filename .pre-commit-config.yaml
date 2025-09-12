@@ -27,9 +27,10 @@ repos:
   # test = "pytest"  (run full test suite on push)
   - repo: local
     hooks:
-      - id: pytest
-        name: pytest (full suite)
-        entry: pytest
-        language: system
-        pass_filenames: false   # run entire suite
-        stages: [pre-push]          # recommend pre-push (move to 'commit' if you prefer)
+    - id: pytest
+      name: pytest (full suite)
+      entry: poetry
+      language: system
+      args: ["run", "pytest"]
+      pass_filenames: false
+      stages: [push]
