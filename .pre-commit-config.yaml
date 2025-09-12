@@ -33,4 +33,4 @@ repos:
       language: system
       args: ["run", "pytest"]
       pass_filenames: false
-      stages: [push]
+      stages: [pre-push]
