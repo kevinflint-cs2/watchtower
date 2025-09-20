@@ -55,12 +55,12 @@ typecheck = "mypy scripts tests"
 test = "pytest -q -m smoke"
 envsync = 'azd env set --file .env -e dev'
 login-az = "az login"
-login-azd = "azd login"
+login-azd = "azd auth login"
 deploy = "azd up"
 destroy = "azd down --purge --force --no-prompt"
 git-add = "git add ."
 git-push = "git push -u origin main"
-cz-commit = "cz commit"
+cz = "cz commit"
 cleanup-agents = "python ./scripts/cleanup_agents.py"
 envs-set = "python ./scripts/set_envs.py"
 envs-clean-root = "rm -f .env"
@@ -75,8 +75,8 @@ sequence = ["envs-clean-root", "envs-clean-azure"]
 [tool.poe.tasks.checks]
 sequence = ["fmt", "fix", "lint", "typecheck", "secrets-validate", "secrets-audit"]
 
-[tool.poe.tasks.push]
-sequence = ["git-add", "cz-commit", "git-push"]
+[tool.poe.tasks.commit]
+sequence = ["git-add", "cz"]
 
 [tool.poe.tasks.up]
 sequence = ["login-azd", "envs-set", "deploy", "test"]
