@@ -2,6 +2,7 @@
 # ./scripts/set_envs.py
 from __future__ import annotations
 
+import os
 import re
 import subprocess
 import sys
@@ -77,8 +78,7 @@ def is_uuid(s: str) -> bool:
 
 def try_default_subscription() -> str | None:
     try:
-        cp = run(["az", "account", "show", "--query", "id", "-o", "tsv"])
-        sub = cp.stdout.strip()
+        sub = os.getenv('AZURE_SUBSCRIPTION_ID')
         return sub if is_uuid(sub) else None
     except Exception:
         return None

@@ -103,3 +103,40 @@ Below is the script to modify
 
 ### Results: Worked like a charm
 
+## Prompt: Build IOC/IOA/Vuln WebSearch AI Agent
+
+So the next step is to  "Add basic **tools** (code interpreter, web search)"
+
+- Want to inegrate Web Search Tool into AI Agent/s
+- I would like for the AI Agents to perform the following
+    - Search for, extract, and bucket the following IOCs: hashes, ips, domain names, urls, filenames
+    - Search for, extract and bucket the following IOAs: CVEs Used In Attack, MITRE ATT&CK Techniques
+    - Identify threat actor
+- Ensure telemtry is baked in
+- Consider future integrations, at somepoint I will connect Sentinel data and I would like an agent to search Sentinel data for these IOCs and IOAs
+- No code for now, just a strategy
+
+### Results: Did too well of a job :D, would end up with a product if I could build it. 
+
+### Delme when done
+
+
+(once) ensure provider is registered
+az provider register --namespace Microsoft.Bing
+az provider show --namespace Microsoft.Bing -o table
+
+deploy at resource-group scope
+az deployment group create \
+  --subscription "$AZURE_SUBSCRIPTION_ID" \
+  --resource-group "$AZURE_RESOURCE_GROUP" \
+  --template-file ./bing-grounding.bicep \
+  --parameters name="wt-bing-grounding" location="eastus" sku="S0"
+
+BING_GROUNDING_ID=$(az deployment group show \
+  --subscription "$AZURE_SUBSCRIPTION_ID" \
+  --resource-group "$AZURE_RESOURCE_GROUP" \
+  --name $(az deployment group list -g "$AZURE_RESOURCE_GROUP" --query "[0].name" -o tsv) \
+  --query "properties.outputs.bingAccountId.value" -o tsv)
+
+echo "BING_GROUNDING_ID=$BING_GROUNDING_ID"
+
