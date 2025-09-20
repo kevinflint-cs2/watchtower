@@ -6,7 +6,7 @@ from azure.identity import DefaultAzureCredential
 
 load_dotenv()
 name_model = os.environ["MODEL_DEPLOYMENT_NAME"]
-name_agent = os.environ["AGENT_NAME"]
+name_agent = os.environ["AGENT_NAME_SMOKETEST"]
 project_endpoint = os.environ["PROJECT_ENDPOINT"]
 
 
