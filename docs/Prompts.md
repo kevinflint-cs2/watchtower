@@ -85,3 +85,21 @@ General setup
 - Run "poetry run poe down" to tear everything down
 
 Make this a proper well documented repository using the readme.md you build. Output so that I can paste in my readme. 
+
+### Results: returned robust readme.md that needed only minor modifications
+
+## Prompt: Update my ask_agent.py script
+
+I need you to modify my ask_agent.py script, currently takes a parameter that is a question, then it reads in an AGENT_NAME to send the question. Results are returned and printed to screen as raw json. I would like to make some modifications. 
+
+- Read in all environmental variables with AGENT_NAME_* from .env file to get all available agent names
+    - Sample environmental variables are: AGENT_NAME_SMOKETEST, AGENT_NAME_MULTIAGENT
+- Allow me to select the agent to communicate to
+- Once selected, allow me to ask a question
+- Parse the results and only display the text value
+    - Sample response: {'type': 'text', 'text': {'value': "The 1999 Super Bowl, officially known as Super Bowl XXXIII, was won by the Denver Broncos. They defeated the Atlanta Falcons with a score of 34-19. This game took place on January 31, 1999, and was held at Pro Player Stadium in Miami, Florida. John Elway, the Broncos' quarterback, was named the game's Most Valuable Player (MVP).", 'annotations': []}}]
+
+Below is the script to modify
+
+### Results: Worked like a charm
+
