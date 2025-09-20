@@ -13,6 +13,10 @@ azure-ai-projects = ">=1.0.0,<2.0.0"
 azure-identity = ">=1.25.0,<2.0.0"
 openai = ">=1.108.0,<2.0.0"
 python-dotenv = ">=1.1.1,<2.0.0"
+opentelemetry-sdk = "^1.37.0"
+opentelemetry-exporter-otlp-proto-http = "^1.37.0"
+azure-core-tracing-opentelemetry = "^1.0.0b12"
+azure-monitor-opentelemetry = "^1.8.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.3"

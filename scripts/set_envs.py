@@ -179,13 +179,17 @@ def main() -> int:
 
     # Derived values
     azure_env_name = env
-    agent_name = f"{name_prefix}-smoketest-{azure_env_name}"
+    agent_name_smoketest = f"{name_prefix}-smoketest-{azure_env_name}"
+    agent_name_multiagent = f"{name_prefix}-multiagent-{azure_env_name}"
+    agent_name_logger = f"{name_prefix}-logger-{azure_env_name}"
     aifoundry_account = f"{name_prefix}-aifa-{azure_env_name}"
     aifoundry_project = f"{name_prefix}-aifp-{azure_env_name}"
     project_endpoint = f"https://{aifoundry_project}.services.ai.azure.com/api/projects/{aifoundry_project}"
 
     env_map = {
-        "AGENT_NAME": agent_name,
+        "AGENT_NAME_SMOKETEST": agent_name_smoketest,
+        "AGENT_NAME_MULTIAGENT": agent_name_multiagent,
+        "AGENT_NAME_LOGGER": agent_name_logger,
         "AIFOUNDRY_ACCOUNT": aifoundry_account,
         "AIFOUNDRY_PROJECT": aifoundry_project,
         "AZURE_ENV_NAME": azure_env_name,

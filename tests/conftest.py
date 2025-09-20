@@ -11,13 +11,13 @@ def env():
     load_dotenv(find_dotenv(), override=False)
 
     endpoint = os.getenv("PROJECT_ENDPOINT")
-    agent_name = os.getenv("AGENT_NAME")
+    agent_name = os.getenv("AGENT_NAME_SMOKETEST")
     model_name = os.getenv("MODEL_DEPLOYMENT_NAME")  # optional for assertions/logging
 
     if not endpoint:
         pytest.skip("PROJECT_ENDPOINT is not set in environment/.env")
     if not agent_name:
-        pytest.skip("AGENT_NAME is not set in environment/.env")
+        pytest.skip("AGENT_NAME_SMOKETEST is not set in environment/.env")
 
     return {
         "endpoint": endpoint,
