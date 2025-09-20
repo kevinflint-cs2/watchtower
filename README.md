@@ -1,10 +1,9 @@
-# Azure AI Foundry Agentic AI — Starter Kit
+# WatchTower: WORK IN PROGRESS
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/kevinflint-cs2/hello-azd-bicep?quickstart=1)
+An Agent AI for Incident Response that triages alerts, auto-enriches evidence, and orchestrates approved containment actions—under human-in-the-loop control—to cut MTTA/MTTR, standardize response, and keep a complete audit trail.
 
-Initially an Agnentic AI helloworld that I overcomplicated. :)
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/kevinflint-cs2/watchtower?quickstart=1)
 
-**What it is now**: Spin up a minimal **Azure AI Foundry** environment and a **single AI Agent** with one command. This repo is a clean, reproducible starter for agentic AI on Azure—infra as code, sensible dev tooling, and secret-safety baked in. 
 
 ---
 
@@ -12,8 +11,15 @@ Initially an Agnentic AI helloworld that I overcomplicated. :)
 
 A simple, automated setup of **Azure AI Foundry** that:
 
-* Provisions infra with **azd + Bicep**
-* Creates a **single AI Agent**
+* Provisions infra with **azd + Bicep**, builds the following:
+  * Application Insight
+  * Log Analytic Workspace
+  * Key Vault
+  * Storage Account
+  * AI Foundry Project
+* Creates a **AI Agents**
+  * Work in progress, but will create a single agent
+  * Goal is to leverage Agentic AI to assist with incident response 
 * Runs a **post-creation smoke test**
 * Gives you a one-liner to query the agent
 
@@ -24,7 +30,7 @@ A simple, automated setup of **Azure AI Foundry** that:
 * **GitHub** for repo
 * **azd / Bicep** for infrastructure
 * **azd** for environment management
-* **Python 3.12** for agent creation, deletion, and queries
+* **Python 3.12** for for non-inrastructure tasks like env setup and agent mgmt
 * **`azure.yaml`** orchestrates post-provision agent creation
 * **Poetry** for dependencies & virtualenv
 * **Poe the Poet** for task running
@@ -85,27 +91,6 @@ poetry run poe down
 * **Root file for Python:** `.env` (auto-exported from the selected `azd` env)
 
 > Keep `.env` files **untracked**. They mirror azd values locally for Python.
-
-**.gitignore** (snippet)
-
-```
-.env
-.env.*
-.azure/*/.env
-.venv/
-```
-
-**Naming pattern** (derived automatically)
-
-```
-[NAME_PREFIX]-[SHORTHAND_SERVICEID]-[AZURE_ENV_NAME]
-
-Examples:
-  AIFOUNDRY_ACCOUNT = wt-aifa-dev
-  AIFOUNDRY_PROJECT = wt-aifp-dev
-  AGENT_NAME        = wt-smoketest-dev
-  PROJECT_ENDPOINT  = https://wt-aifp-dev.services.ai.azure.com/api/projects/wt-aifp-dev
-```
 
 ---
 
@@ -181,12 +166,12 @@ See `pyproject.toml` for the full set of Poe tasks (login, commit, secret scans,
 
 ```mermaid
 flowchart LR
-    Dev[poetry run poe up] --> Env[Bootstrap envs\n(.azure/<env>/.env + azd env)]
-    Env --> Bicep[azd up -> Bicep deploy]
-    Bicep --> AFA[Azure AI Foundry Account]
-    Bicep --> AFP[Azure AI Foundry Project]
-    Env -->|python| Agent[Create AI Agent]
-    Agent --> Test[Smoke Test]
+  Dev["poetry run poe up"] --> Env["Bootstrap envs<br/>(.azure/&lt;env&gt;/.env + azd env)"]
+  Env --> Bicep["azd up → Bicep deploy"]
+  Bicep --> AFA["Azure AI Foundry Account"]
+  Bicep --> AFP["Azure AI Foundry Project"]
+  Env -- python --> Agent["Create AI Agent"]
+  Agent --> Test["Smoke Test"]
 ```
 
 * **Infra**: Bicep templates deployed by `azd up`
@@ -224,15 +209,3 @@ poetry run poe down
 > Destructive and **irreversible** for purge-capable resources—use with care.
 
 ---
-
-## Contributing
-
-* Use **Conventional Commits** (`cz commit`)
-* Keep code formatted (`ruff`) and typed (`mypy`)
-* Don’t commit `.env` or secrets; rely on **detect-secrets** + **pre-commit**
-
----
-
-## License
-
-Add a `LICENSE` file (e.g., MIT).
