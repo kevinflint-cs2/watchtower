@@ -5,9 +5,9 @@ from azure.identity import DefaultAzureCredential
 
 
 load_dotenv()
-name_model = os.environ["MODEL_DEPLOYMENT_NAME"]
+name_model = os.environ["MODEL_CHATGPT4O_MINI"]
 name_agent = os.environ["AGENT_NAME_SMOKETEST"]
-project_endpoint = os.environ["PROJECT_ENDPOINT"]
+project_endpoint = os.environ["AIFOUNDRY_PROJECT_ENDPOINT"]
 
 
 # Create an AIProjectClient instance

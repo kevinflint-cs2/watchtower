@@ -12,7 +12,6 @@ from typing import Dict, List
 VALID_ENVS = ["dev", "preprod", "prod"]
 DEFAULT_ENV = "dev"
 DEFAULT_LOCATION = "eastus2"
-DEFAULT_MODEL = "gpt-4o-mini"
 DEFAULT_PREFIX = "wt"
 
 STORAGE_SKUS = [
@@ -172,32 +171,20 @@ def main() -> int:
         )
         storage_sku = STORAGE_SKUS[int(sku_index_raw) - 1]
 
-    model = existing.get("MODEL_DEPLOYMENT_NAME") or prompt_text(
-        "Model deployment name (only 'gpt-4o-mini' supported for now)",
-        default=DEFAULT_MODEL,
-    )
-
     # Derived values
     azure_env_name = env
     agent_name_smoketest = f"{name_prefix}-smoketest-{azure_env_name}"
     agent_name_multiagent = f"{name_prefix}-multiagent-{azure_env_name}"
     agent_name_logger = f"{name_prefix}-logger-{azure_env_name}"
-    aifoundry_account = f"{name_prefix}-aifa-{azure_env_name}"
-    aifoundry_project = f"{name_prefix}-aifp-{azure_env_name}"
-    project_endpoint = f"https://{aifoundry_project}.services.ai.azure.com/api/projects/{aifoundry_project}"
 
     env_map = {
         "AGENT_NAME_SMOKETEST": agent_name_smoketest,
         "AGENT_NAME_MULTIAGENT": agent_name_multiagent,
         "AGENT_NAME_LOGGER": agent_name_logger,
-        "AIFOUNDRY_ACCOUNT": aifoundry_account,
-        "AIFOUNDRY_PROJECT": aifoundry_project,
         "AZURE_ENV_NAME": azure_env_name,
         "AZURE_LOCATION": location,
         "AZURE_SUBSCRIPTION_ID": subscription_id,
-        "MODEL_DEPLOYMENT_NAME": model,
         "NAME_PREFIX": name_prefix,
-        "PROJECT_ENDPOINT": project_endpoint,
         "STORAGE_SKU": storage_sku,
     }
 

@@ -1,11 +1,11 @@
 // ./infra/modules/storage-account.bicep
 targetScope = 'resourceGroup'
 
+@description('Prefix for the storage account name')
+param storageAccountName string
+
 @description('Azure region for the storage account')
 param location string
-
-@description('Prefix for the storage account name')
-param namePrefix string
 
 @allowed([
   'Standard_LRS'
@@ -19,8 +19,8 @@ param accountSku string
 @description('Resource ID of the Log Analytics Workspace (from observability.bicep outputs)')
 param logAnalyticsWorkspaceId string
 
-// Stable, unique SA name from the RG id to avoid collisions
-var storageAccountName = '${namePrefix}st${uniqueString(resourceGroup().id)}'
+@description('Tags to apply to resources in this module')
+param tags object
 
 resource sa 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   name: storageAccountName
@@ -32,10 +32,7 @@ resource sa 'Microsoft.Storage/storageAccounts@2023-01-01' = {
     allowBlobPublicAccess: false
     supportsHttpsTrafficOnly: true
   }
-  tags: {
-    project: 'hello-azd-bicep'
-    env: 'dev'
-  }
+  tags: tags
 }
 
 // ----- Existing service handles (required for per-service diagnostic settings)

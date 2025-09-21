@@ -4,11 +4,8 @@ targetScope = 'resourceGroup'
 @description('Azure region for the Key Vault')
 param location string
 
-@description('Prefix used when constructing resource names')
-param namePrefix string
-
-@description('Environment name (e.g., dev, test, prod)')
-param envName string
+@description('Key Vault Name')
+param keyVaultName string
 
 @allowed([
   'standard'
@@ -19,7 +16,6 @@ param skuName string = 'standard'
 
 @description('Enable RBAC authorization model (recommended)')
 param enableRbacAuthorization bool = true
-
 
 // @description('Enable purge protection (strongly recommended for prod)')
 // param enablePurgeProtection bool = true
@@ -66,11 +62,9 @@ param logAnalyticsWorkspaceId string = ''
 @description('Diagnostic setting name (used to adopt/update if it already exists)')
 param diagSettingName string = 'kv-to-la'
 
-// ---------------- Name generation (<= 24 chars constraint) ----------------
+@description('Tags to apply to resources in this module')
+param tags object
 
-var baseName = toLower('${namePrefix}-kv-${envName}')
-var suffix = substring(uniqueString(resourceGroup().id), 0, 6)
-var kvName = length(baseName) <= 17 ? '${baseName}-${suffix}-01' : '${substring(baseName, 0, 17)}-${suffix}'
 
 // ---------------- Role Definition IDs (built-in) ----------------
 var roleId_KeyVaultAdmin        = '00482a5a-887f-4fb3-b363-3b7fe8e74483' // Key Vault Administrator
@@ -80,7 +74,7 @@ var roleId_KeyVaultSecretsOfcr  = 'b86a8fe4-44ce-4948-aee5-eccb2c155cd7' // Key 
 // ---------------- Vault ----------------
 
 resource kv 'Microsoft.KeyVault/vaults@2024-11-01' = {
-  name: kvName
+  name: keyVaultName
   location: location
   properties: {
     tenantId: subscription().tenantId
@@ -101,10 +95,7 @@ resource kv 'Microsoft.KeyVault/vaults@2024-11-01' = {
     softDeleteRetentionInDays: softDeleteRetentionInDays
     //enablePurgeProtection: enablePurgeProtection
   }
-  tags: {
-    project: 'hello-azd-bicep'
-    env: envName
-  }
+  tags: tags
 }
 
 // ---------------- RBAC: role assignments at vault scope ----------------

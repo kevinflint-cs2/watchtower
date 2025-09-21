@@ -24,10 +24,15 @@ param projectManagerPrincipalIds array = []
 @description('Principal IDs to grant Azure AI User at the project scope')
 param projectUserPrincipalIds array = []
 
+@description('Tags to apply to resources in this module')
+param tags object
+
+
 // ----- Account (kind=AIServices) -----
 resource account 'Microsoft.CognitiveServices/accounts@2025-06-01' = {
   name: accountName
   location: location
+  tags: tags
   kind: 'AIServices'
   sku: { name: accountSku }
   identity: { type: 'SystemAssigned' }
@@ -94,3 +99,6 @@ resource raUsers 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for pid
 
 output accountId string = account.id
 output projectId string = project.id
+output accountName string = account.name
+output projectName string = project.name
+output projectEndpoints object = project.properties.endpoints

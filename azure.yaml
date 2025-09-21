@@ -2,9 +2,4 @@ name: hello-azd-bicep
 infra:
   provider: bicep
   path: infra
-hooks:
-  postprovision:
-    shell: sh
-    run: |
-      poetry install --with dev --no-interaction
-      poetry run python ./scripts/create_agent.py
+

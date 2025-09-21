@@ -3,15 +3,14 @@ targetScope = 'resourceGroup'
 @description('Azure region for observability resources')
 param location string
 
-@description('Prefix used when constructing resource names')
-param namePrefix string
+@description('Log Analytic Workspace Name')
+param laName string
 
-@description('Environment name (e.g., dev, test, prod)')
-param envName string
+@description('Application Insights Name')
+param appiName string
 
-// Names per your pattern: <prefix>-laws-<env>, and a similar pattern for App Insights
-var laName   = '${namePrefix}-laws-${envName}'
-var appiName = '${namePrefix}-appi-${envName}'
+@description('Tags to apply to resources in this module')
+param tags object
 
 resource laws 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
   name: laName
@@ -23,10 +22,7 @@ resource laws 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
       enableLogAccessUsingOnlyResourcePermissions: true
     }
   }
-  tags: {
-    project: 'hello-azd-bicep'
-    env: envName
-  }
+  tags: tags
 }
 
 resource appi 'Microsoft.Insights/components@2020-02-02' = {
@@ -40,7 +36,7 @@ resource appi 'Microsoft.Insights/components@2020-02-02' = {
   }
   tags: {
     project: 'hello-azd-bicep'
-    env: envName
+    //env: envName
   }
 }
 
@@ -48,3 +44,4 @@ output laNameOut   string = laws.name
 output laIdOut     string = laws.id
 output appiNameOut string = appi.name
 output appiIdOut   string = appi.id
+output appiConnStr string  = appi.properties.ConnectionString
