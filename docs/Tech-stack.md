@@ -24,7 +24,14 @@
 - `.devcontainer/` — Codespaces configuration
 - `docs/` — Documentation
 - `infra/` — Bicep infrastructure + parameter files
+- `prompts/` — Store complex prompts
 - `src/` — Python code
 - `src/watchtower/` — Watchtower application
 - `tests/` — Python tests
 - `.github/workflows/azure.yml` — GitHub Actions workflow that **deploys Bicep** to Azure
+
+### Agentic Prompts (Authoring Workflow)
+- All complex agent instructions are stored as markdown under `./prompts/`.
+- Automation reads prompts from disk (e.g., `HUNT_SHEET_PATH=./prompts/HuntSheet.md`) and sends them to the Agent.
+- Benefits: versioned prompts, code/prompt separation, easy reviews, quick edits without redeploying.
+

@@ -68,6 +68,7 @@ envs-clean-azure = "rm -rf .azure"
 secrets-scan = "detect-secrets scan"
 secrets-audit = "detect-secrets audit .secrets.baseline"
 secrets-validate = "detect-secrets scan --baseline .secrets.baseline"
+agent-review = "python scripts/agent_review_process_csv.py"
 
 [tool.poe.tasks.clean]
 sequence = ["envs-clean-root", "envs-clean-azure"]

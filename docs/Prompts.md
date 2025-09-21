@@ -140,3 +140,32 @@ BING_GROUNDING_ID=$(az deployment group show \
 
 echo "BING_GROUNDING_ID=$BING_GROUNDING_ID"
 
+
+## Prompt: Use Code Interpreter to Read In a File
+
+Yes, but I want to start simple.
+
+- Read in my tech stack to add context to additional questions: https://raw.githubusercontent.com/kevinflint-cs2/watchtower/refs/heads/main/docs/Tech-stack.md
+- Roadmap here: https://raw.githubusercontent.com/kevinflint-cs2/watchtower/refs/heads/main/docs/Roadmap.md
+- Read in my README.md to understand my workflow: https://raw.githubusercontent.com/kevinflint-cs2/watchtower/refs/heads/main/README.md
+
+How about parsing a csv of process events and identifying suspicious behavior, the file would mirror DeviceProccessEvent table from Sentinel. Could you create a sample process event file with suspicious behavior, then write the code necessary to create AI Agentic review of the files and report suspicious behavior? Think of ways to keep this simple for now.
+
+
+### Results: Wrote a python file to read in and parse a process event csv for suspicious activity using rules. Good, but hoping for an AI Agentic Solution. 
+
+## Prompt: Asking to do the same above but with agentic ai
+
+Here are better links to raw data
+
+- Read in my tech stack to add context to additional questions: https://raw.githubusercontent.com/kevinflint-cs2/watchtower/refs/heads/main/docs/Tech-stack.md
+- Roadmap here: https://raw.githubusercontent.com/kevinflint-cs2/watchtower/refs/heads/main/docs/Roadmap.md
+- Read in my README.md to understand my workflow: https://raw.githubusercontent.com/kevinflint-cs2/watchtower/refs/heads/main/README.md
+
+Roadmap item I am attempting to complete is "Agentic AI: Basic tool integration (code interpreter, search)"
+
+I was hoping more for the AI Agent to review the file and look for suspicious activity. Maybe we provide it with natural language suspicious activity to look for. Remember, my key objective is to learn how to use Agentic AI in AI Foundry. 
+
+### Results: Now we are talking, reads in a hunt sheet, then uses Agentic AI to read in a process event csv searching for suspicious activity
+
+
