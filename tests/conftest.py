@@ -10,18 +10,29 @@ def env():
     # Load .env from repo root (or nearest up the tree)
     load_dotenv(find_dotenv(), override=False)
 
-    endpoint = os.getenv("PROJECT_ENDPOINT")
+    endpoint = os.getenv("AIFOUNDRY_PROJECT_ENDPOINT")
     agent_name = os.getenv("AGENT_NAME_SMOKETEST")
-    model_name = os.getenv("MODEL_DEPLOYMENT_NAME")  # optional for assertions/logging
+    agent_multi_name = os.getenv("AGENT_NAME_MULTIAGENT")
+    agent_multi_logger = os.getenv("AGENT_NAME_LOGGER")
+    model_name = os.getenv("MODEL_CHATGPT4O_MINI")  # optional for assertions/logging
 
     if not endpoint:
-        pytest.skip("PROJECT_ENDPOINT is not set in environment/.env")
+        pytest.skip("AIFOUNDRY_PROJECT_ENDPOINT is not set in environment/.env")
     if not agent_name:
         pytest.skip("AGENT_NAME_SMOKETEST is not set in environment/.env")
+    if not model_name:
+        pytest.skip("MODEL_CHATGPT4O_MINI is not set in environment/.env")
+    if not agent_multi_name:
+        pytest.skip("AGENT_NAME_MULTIAGENT is not set in environment/.env")
+    if not agent_multi_logger:
+        pytest.skip("AGENT_NAME_LOGGER is not set in environment/.env")
+
 
     return {
         "endpoint": endpoint,
         "agent_name": agent_name,
+        "agent_multi_name": agent_multi_name,
+        "agent_multi_logger": agent_multi_logger,
         "model_name": model_name,
     }
 

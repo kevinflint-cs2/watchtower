@@ -10,9 +10,9 @@ from azure.identity import DefaultAzureCredential
 from otel_bootstrap import tracer
 
 load_dotenv()
-name_model = os.environ["MODEL_DEPLOYMENT_NAME"]
+name_model = os.environ["MODEL_CHATGPT4O_MINI"]
 name_agent = os.environ["AGENT_NAME_LOGGER"]
-project_endpoint = os.environ["PROJECT_ENDPOINT"]
+project_endpoint = os.environ["AIFOUNDRY_PROJECT_ENDPOINT"]
 
 with tracer.start_as_current_span("create_project_client", attributes={
     "azure.endpoint": project_endpoint,

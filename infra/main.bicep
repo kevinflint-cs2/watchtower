@@ -121,10 +121,11 @@ module chat4oMini './modules/aoai-model-chatgpt4o-mini.bicep' = {
 
 output storage_account      string = storage.outputs.name
 output la_name              string = observability.outputs.laNameOut
-output appit_name           string = observability.outputs.appiNameOut
+output appi_name           string = observability.outputs.appiNameOut
 output appi_conn_str_id     string = observability.outputs.appiConnStr
 output keyvault_name        string = keyvault.outputs.keyVaultName
 output aifoundry_account    string = aiFoundry.outputs.accountName
 output aifoundry_project    string = aiFoundry.outputs.projectName
+output aifountry_project_endpoint string = aiFoundry.outputs.projectEndpoints['AI Foundry API']
 output model_chatgpt4o_mini string = chat4oMini.outputs.deployedName
-output project_endpoint     object = aiFoundry.outputs.projectEndpoints
+

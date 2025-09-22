@@ -167,5 +167,3 @@ Roadmap item I am attempting to complete is "Agentic AI: Basic tool integration 
 I was hoping more for the AI Agent to review the file and look for suspicious activity. Maybe we provide it with natural language suspicious activity to look for. Remember, my key objective is to learn how to use Agentic AI in AI Foundry. 
 
 ### Results: Now we are talking, reads in a hunt sheet, then uses Agentic AI to read in a process event csv searching for suspicious activity
-
-

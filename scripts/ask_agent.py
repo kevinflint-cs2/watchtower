@@ -213,7 +213,7 @@ def main():
     agent_override, q_tokens = coerce_cli_args(sys.argv[1:])
     question_arg = " ".join(q_tokens).strip()
 
-    endpoint = os.environ["PROJECT_ENDPOINT"]
+    endpoint = os.environ["AIFOUNDRY_PROJECT_ENDPOINT"]
     cred = DefaultAzureCredential()
     agents_from_env = get_available_agent_names()
 

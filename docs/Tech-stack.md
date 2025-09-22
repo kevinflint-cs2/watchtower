@@ -30,6 +30,16 @@
 - `tests/` — Python tests
 - `.github/workflows/azure.yml` — GitHub Actions workflow that **deploys Bicep** to Azure
 
+## Build Process
+- poetry run poe clean
+- poetry run poe envs-set
+- azd up
+- poetry run python ./scripts/sync_env_from_outputs.py --rg wt4-rg-dev --env-name dev
+- poetry run python ./scripts/create_agent.py
+- poetry run python ./scripts/create_multiagent.py
+- poetry run python ./scripts/create_logging_agent.py
+- poetry run pytest -vv
+
 ### Agentic Prompts (Authoring Workflow)
 - All complex agent instructions are stored as markdown under `./prompts/`.
 - Automation reads prompts from disk (e.g., `HUNT_SHEET_PATH=./prompts/HuntSheet.md`) and sends them to the Agent.

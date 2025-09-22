@@ -5,8 +5,8 @@ from azure.identity import DefaultAzureCredential
 from azure.ai.projects import AIProjectClient
 from azure.ai.projects.models import CodeInterpreterTool, BingGroundingTool, MessageAttachment
 
-PROJECT_ENDPOINT = os.environ["PROJECT_ENDPOINT"]
-MODEL = os.environ.get("MODEL_DEPLOYMENT_NAME", "gpt-4o")
+PROJECT_ENDPOINT = os.environ["AIFOUNDRY_PROJECT_ENDPOINT"]
+MODEL = os.environ.get("MODEL_DEPLOYMENT_NAME")
 
 CSV_PATH = Path(os.environ.get("PROCESS_CSV", "sample_device_process_events.csv")).resolve()
 PROMPT_PATH = Path(os.environ.get("HUNT_SHEET_PATH", "./prompts/HuntSheet.md")).resolve()

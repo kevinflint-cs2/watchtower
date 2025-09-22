@@ -20,9 +20,9 @@ from azure.monitor.opentelemetry import configure_azure_monitor
 load_dotenv()
 
 # ---- App Insights connection string (required) ----
-_conn = os.getenv("APPI_CONNECTION_STRING")
+_conn = os.getenv("APPI_CONN_STR_ID")
 if not _conn:
-    raise RuntimeError("APPI_CONNECTION_STRING not set")
+    raise RuntimeError("APPI_CONN_STR_ID not set in envars")
 
 # ---- Configure Azure Monitor (traces + logs + metrics) ----
 # Sampling: for investigations you likely want 100% in dev
@@ -35,7 +35,7 @@ configure_azure_monitor(
 resource = Resource.create({
     "service.name": os.getenv("SERVICE_NAME", "ai-multiagent"),
     "service.version": os.getenv("SERVICE_VERSION", "0.1.0"),
-    "deployment.environment": os.getenv("DEPLOY_ENV", "dev"),
+    "deployment.environment": os.getenv("AZURE_ENV_NAME"),
 })
 
 provider = TracerProvider(resource=resource)
