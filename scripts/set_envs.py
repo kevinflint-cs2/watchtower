@@ -7,7 +7,7 @@ import re
 import subprocess
 import sys
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 VALID_ENVS = ["dev", "preprod", "prod"]
 DEFAULT_ENV = "dev"
@@ -71,13 +71,15 @@ def prompt_text(prompt: str, default: str | None = None, validator=None) -> str:
             return raw
 
 
-def is_uuid(s: str) -> bool:
+def is_uuid(s: Optional[str]) -> bool:  # or: def is_uuid(s: str | None) -> bool:
+    if s is None:
+        return False
     return bool(UUID_RE.match(s))
 
 
 def try_default_subscription() -> str | None:
     try:
-        sub = os.getenv('AZURE_SUBSCRIPTION_ID')
+        sub = os.getenv("AZURE_SUBSCRIPTION_ID")
         return sub if is_uuid(sub) else None
     except Exception:
         return None
@@ -176,11 +178,13 @@ def main() -> int:
     agent_name_smoketest = f"{name_prefix}-smoketest-{azure_env_name}"
     agent_name_multiagent = f"{name_prefix}-multiagent-{azure_env_name}"
     agent_name_logger = f"{name_prefix}-logger-{azure_env_name}"
+    agent_name_susprocs = f"{name_prefix}-susprocs-{azure_env_name}"
 
     env_map = {
         "AGENT_NAME_SMOKETEST": agent_name_smoketest,
         "AGENT_NAME_MULTIAGENT": agent_name_multiagent,
         "AGENT_NAME_LOGGER": agent_name_logger,
+        "AGENT_NAME_SUSPECT_PROCS": agent_name_susprocs,
         "AZURE_ENV_NAME": azure_env_name,
         "AZURE_LOCATION": location,
         "AZURE_SUBSCRIPTION_ID": subscription_id,

@@ -10,7 +10,7 @@ def main():
     load_dotenv()
 
     client = AIProjectClient(
-        endpoint=os.environ["PROJECT_ENDPOINT"],
+        endpoint=os.environ["AIFOUNDRY_PROJECT_ENDPOINT"],
         credential=DefaultAzureCredential(),
     )
 

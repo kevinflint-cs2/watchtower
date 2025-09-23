@@ -2,6 +2,7 @@
 import pytest
 from azure.ai.agents.models import MessageRole
 
+
 def _msg_text(m):
     # Try content array -> text.value, then top-level .text
     for c in getattr(m, "content", []) or []:
@@ -11,6 +12,7 @@ def _msg_text(m):
     t2 = getattr(m, "text", None)
     return t2 if isinstance(t2, str) and t2.strip() else None
 
+
 @pytest.mark.smoke
 def test_multiagent_exists(project_client, env):
     agents = list(project_client.agents.list_agents())
@@ -19,12 +21,15 @@ def test_multiagent_exists(project_client, env):
         f"Multi-agent '{env['agent_multi_name']}' not found. Available: {names}"
     )
 
+
 @pytest.mark.smoke
 def test_multiagent_responds_anything(project_client, env):
     agents = list(project_client.agents.list_agents())
     agent = next((a for a in agents if a.name == env["agent_multi_name"]), None)
     if agent is None:
-        pytest.skip(f"Multi-agent '{env['agent_multi_name']}' not found via list_agents().")
+        pytest.skip(
+            f"Multi-agent '{env['agent_multi_name']}' not found via list_agents()."
+        )
 
     # 1) Create thread + user message
     thread = project_client.agents.threads.create()
@@ -44,18 +49,27 @@ def test_multiagent_responds_anything(project_client, env):
             thread_id=thread.id, assistant_id=agent.id
         )
 
-    assert getattr(run, "status", None) not in {"failed", "cancelled", "expired"}, \
+    assert getattr(run, "status", None) not in {"failed", "cancelled", "expired"}, (
         f"Run failed: {getattr(run, 'last_error', '')}"
+    )
 
     # 3) Get the last non-user reply (role may be 'assistant' or 'agent' depending on SDK)
     msgs = list(project_client.agents.messages.list(thread_id=thread.id))
-    assistant_like = [m for m in msgs if str(getattr(m, "role", "")).lower() in {"assistant", "agent"}]
+    assistant_like = [
+        m for m in msgs if str(getattr(m, "role", "")).lower() in {"assistant", "agent"}
+    ]
     if not assistant_like:
-        assistant_like = [m for m in msgs if getattr(m, "role", None) != MessageRole.USER]
+        assistant_like = [
+            m for m in msgs if getattr(m, "role", None) != MessageRole.USER
+        ]
 
     # Sort by timestamp if present (created_at or created), then take the latest
-    assistant_like.sort(key=lambda m: getattr(m, "created_at", getattr(m, "created", 0)))
+    assistant_like.sort(
+        key=lambda m: getattr(m, "created_at", getattr(m, "created", 0))
+    )
     assert assistant_like, "No assistant/agent reply found."
 
     text = _msg_text(assistant_like[-1])
-    assert isinstance(text, str) and text.strip(), "Assistant/agent returned empty response."
+    assert isinstance(text, str) and text.strip(), (
+        "Assistant/agent returned empty response."
+    )

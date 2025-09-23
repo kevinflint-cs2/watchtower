@@ -4,13 +4,7 @@ import logging
 from dotenv import load_dotenv
 
 from azure.core.settings import settings
-
-# Azure ↔ OpenTelemetry bridge
-try:
-    from azure.core.tracing.ext.opentelemetry_span import OpenTelemetrySpan as _OTImpl
-except Exception:
-    from azure.core.tracing.ext.opentelemetry_tracing import OpenTelemetryTracing as _OTImpl  # older/newer compat
-
+from azure.core.tracing.ext.opentelemetry_span import OpenTelemetrySpan as _OTImpl
 from opentelemetry import trace
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
@@ -32,11 +26,13 @@ configure_azure_monitor(
 )
 
 # ---- Make sure our process has a proper resource identity in AI ----
-resource = Resource.create({
-    "service.name": os.getenv("SERVICE_NAME", "ai-multiagent"),
-    "service.version": os.getenv("SERVICE_VERSION", "0.1.0"),
-    "deployment.environment": os.getenv("AZURE_ENV_NAME"),
-})
+resource = Resource.create(
+    {
+        "service.name": os.getenv("SERVICE_NAME", "ai-multiagent"),
+        "service.version": os.getenv("SERVICE_VERSION", "0.1.0"),
+        "deployment.environment": os.environ["AZURE_ENV_NAME"],
+    }
+)
 
 provider = TracerProvider(resource=resource)
 trace.set_tracer_provider(provider)
@@ -46,6 +42,7 @@ trace.set_tracer_provider(provider)
 # If you also installed the console exporter for local debugging, enable it:
 try:
     from opentelemetry.sdk.trace.export import ConsoleSpanExporter
+
     provider.add_span_processor(BatchSpanProcessor(ConsoleSpanExporter()))
 except Exception:
     pass
@@ -54,9 +51,13 @@ except Exception:
 settings.tracing_implementation = _OTImpl
 
 # Optional: turn on Azure SDK HTTP logs (headers/URLs)
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s"
+)
 logging.getLogger("azure").setLevel(logging.INFO)
-logging.getLogger("azure.core.pipeline.policies.http_logging_policy").setLevel(logging.INFO)
+logging.getLogger("azure.core.pipeline.policies.http_logging_policy").setLevel(
+    logging.INFO
+)
 
 # Convenience tracer
 tracer = trace.get_tracer("ai-agents")

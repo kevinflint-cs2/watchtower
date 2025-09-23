@@ -17,7 +17,7 @@ param skuName string = 'GlobalStandard'
 
 @description('Capacity units (controls tokens-per-minute)')
 @minValue(1)
-param capacity int = 1
+param capacity int = 4
 
 @description('Tags to apply to resources in this module')
 param tags object

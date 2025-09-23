@@ -27,7 +27,6 @@ def env():
     if not agent_multi_logger:
         pytest.skip("AGENT_NAME_LOGGER is not set in environment/.env")
 
-
     return {
         "endpoint": endpoint,
         "agent_name": agent_name,

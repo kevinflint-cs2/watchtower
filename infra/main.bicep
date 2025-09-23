@@ -126,6 +126,6 @@ output appi_conn_str_id     string = observability.outputs.appiConnStr
 output keyvault_name        string = keyvault.outputs.keyVaultName
 output aifoundry_account    string = aiFoundry.outputs.accountName
 output aifoundry_project    string = aiFoundry.outputs.projectName
-output aifountry_project_endpoint string = aiFoundry.outputs.projectEndpoints['AI Foundry API']
+output aifoundry_project_endpoint string = aiFoundry.outputs.projectEndpoints['AI Foundry API']
 output model_chatgpt4o_mini string = chat4oMini.outputs.deployedName
 

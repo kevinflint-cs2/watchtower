@@ -33,11 +33,19 @@
 ## Build Process
 - poetry run poe clean
 - poetry run poe envs-set
+  - TODO:
+    - Add RESOURCE_GROUP var
+    - If .env exist then skip
+    - 
 - azd up
-- poetry run python ./scripts/sync_env_from_outputs.py --rg wt4-rg-dev --env-name dev
+- poetry run python ./scripts/sync_env_from_outputs.py --rg wt5-rg-dev --env-name dev
+  - TODO:
+    - Get rg from env
+    - Get env from env
+    - If .env exist then skip
 - poetry run python ./scripts/create_agent.py
 - poetry run python ./scripts/create_multiagent.py
-- poetry run python ./scripts/create_logging_agent.py
+- poetry run python ./scripts/create_logging_agent.py //This runs otel_bootstrap.py
 - poetry run pytest -vv
 
 ### Agentic Prompts (Authoring Workflow)

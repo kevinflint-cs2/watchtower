@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 from azure.ai.projects import AIProjectClient
-from azure.ai.agents.models import ConnectedAgentTool, MessageRole
+from azure.ai.agents.models import ConnectedAgentTool
 from azure.identity import DefaultAzureCredential
 
 load_dotenv()
@@ -21,12 +21,14 @@ stock_price_agent = project_client.agents.create_agent(
     model=name_model,
     name="stock_price_bot",
     instructions="Your job is to get the stock price of a company. If you don't know the realtime stock price, return the last known stock price.",
-    #tools=... # tools to help the agent get stock prices
+    # tools=... # tools to help the agent get stock prices
 )
 
 # Initialize the connected agent tool with the agent ID, name, and description
 connected_agent = ConnectedAgentTool(
-    id=stock_price_agent.id, name=stock_price_agent.name, description="Gets the stock price of a company"
+    id=stock_price_agent.id,
+    name=stock_price_agent.name,
+    description="Gets the stock price of a company",
 )
 
 # Create the "main" agent that will use the connected agent.

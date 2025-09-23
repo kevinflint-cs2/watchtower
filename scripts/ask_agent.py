@@ -2,8 +2,7 @@
 import os
 import sys
 import time
-from typing import Iterable, List, Optional, Tuple
-
+from typing import List, Optional, Tuple, Any, Iterable
 from dotenv import load_dotenv
 from azure.identity import DefaultAzureCredential
 from azure.ai.projects import AIProjectClient
@@ -15,6 +14,10 @@ POLL_SECONDS = 1.5
 def load_env():
     # Load .env first, then let real env override
     load_dotenv(override=False)
+
+
+def _nn(xs: Iterable[Optional[str]]) -> List[str]:
+    return [x for x in xs if x is not None]
 
 
 def get_available_agent_names() -> List[str]:
@@ -101,7 +104,9 @@ def get_agent_id_by_name(project_client: AIProjectClient, name: str) -> Optional
     return None
 
 
-def resolve_agent_id_strict(project_client: AIProjectClient, selected_name: Optional[str]) -> str:
+def resolve_agent_id_strict(
+    project_client: AIProjectClient, selected_name: Optional[str]
+) -> str:
     """
     Strict resolver:
       - If AGENT_ID is set, use it (no service check).
@@ -118,7 +123,9 @@ def resolve_agent_id_strict(project_client: AIProjectClient, selected_name: Opti
     if not agent_id:
         # Show what the service *does* have to aid troubleshooting
         try:
-            service_names = [getattr(a, "name", "") for a in project_client.agents.list_agents()]
+            service_names = [
+                getattr(a, "name", "") for a in project_client.agents.list_agents()
+            ]
         except Exception:
             service_names = []
         msg = [
@@ -144,40 +151,96 @@ def wait_for_run(project_client: AIProjectClient, thread_id: str, run_id: str):
         time.sleep(POLL_SECONDS)
 
 
-def _extract_text_from_part(part) -> Optional[str]:
+def _coerce_to_dict(obj: Any) -> Any:
+    # Some SDK objects provide as_dict(); if not, just return as-is
+    try:
+        if hasattr(obj, "as_dict"):
+            return obj.as_dict()
+    except Exception:
+        pass
+    return obj
+
+
+def _extract_text_from_part(part: Any) -> Optional[str]:
     """
-    Handle varied SDK shapes for message content parts.
-    Examples:
-      - {'type': 'text', 'text': {'value': '...', 'annotations': []}}
+    Handles common SDK shapes:
+      - {'type': 'text', 'text': {'value': '...'}}
       - {'type': 'text', 'text': '...'}
       - {'text': '...'} or {'text': {'value': '...'}}
-      - plain string
+      - {'content': [...]} where inner parts are any of the above
+      - Objects with .text / .content / .value attributes
+      - Plain strings
     """
-    # plain string
+    part = _coerce_to_dict(part)
+
+    # Plain string
     if isinstance(part, str):
         return part
 
+    # Dict-like payloads
     if isinstance(part, dict):
+        # Canonical Azure shape: {'type': 'text', 'text': {'value': '...'}}
         if part.get("type") == "text":
             t = part.get("text")
             if isinstance(t, dict):
-                if isinstance(t.get("value"), str):
-                    return t["value"]
-                if isinstance(t.get("content"), str):
-                    return t["content"]
-            if isinstance(t, str):
+                v = t.get("value") or t.get("content")
+                if isinstance(v, str) and v.strip():
+                    return v
+            if isinstance(t, str) and t.strip():
                 return t
+
+        # Direct 'text' field
         if "text" in part:
             t = part["text"]
-            if isinstance(t, dict) and isinstance(t.get("value"), str):
-                return t["value"]
-            if isinstance(t, str):
+            if isinstance(t, dict):
+                v = t.get("value") or t.get("content")
+                if isinstance(v, str) and v.strip():
+                    return v
+            if isinstance(t, str) and t.strip():
                 return t
+
+        # Nested content array
+        content = part.get("content") or (part.get("message") or {}).get("content")
+        if isinstance(content, list):
+            pieces_opt = [_extract_text_from_part(p) for p in content]
+            pieces = _nn(pieces_opt)
+            if pieces:
+                return "\n\n".join(pieces)
+
+    # Object with attributes
+    for attr in ("text", "content", "value"):
+        if hasattr(part, attr):
+            v = getattr(part, attr)
+            if isinstance(v, str) and v.strip():
+                return v
+            if isinstance(v, dict):
+                vv = v.get("value") or v.get("content")
+                if isinstance(vv, str) and vv.strip():
+                    return vv
+            if isinstance(v, list):
+                pieces_opt = [_extract_text_from_part(p) for p in v]
+                pieces = _nn(pieces_opt)
+                if pieces:
+                    return "\n\n".join(pieces)
 
     return None
 
 
-def extract_latest_assistant_text(project_client: AIProjectClient, thread_id: str) -> Optional[str]:
+def extract_text(payload: Any) -> Optional[str]:
+    """
+    Accepts a single part or a list of parts and returns concatenated text or None.
+    """
+    payload = _coerce_to_dict(payload)
+    if isinstance(payload, list):
+        pieces_opt = [_extract_text_from_part(p) for p in payload]
+        pieces = _nn(pieces_opt)
+        return "\n\n".join(pieces) if pieces else None
+    return _extract_text_from_part(payload)
+
+
+def extract_latest_assistant_text(
+    project_client: AIProjectClient, thread_id: str
+) -> Optional[str]:
     # Prefer ordered & limited listing when available
     try:
         msgs = project_client.agents.messages.list(
@@ -221,7 +284,9 @@ def main():
     if agent_override:
         selected_agent_name = agent_override
         if agents_from_env and selected_agent_name not in agents_from_env:
-            print(f"Warning: --agent '{selected_agent_name}' not found in AGENT_NAME_* list.")
+            print(
+                f"Warning: --agent '{selected_agent_name}' not found in AGENT_NAME_* list."
+            )
     else:
         selected_agent_name = prompt_select("Select an agent to use:", agents_from_env)
 
@@ -229,7 +294,9 @@ def main():
     if not question_arg:
         question_arg = input("Ask your question: ").strip()
         if not question_arg:
-            print('No question provided. Example usage:\n  poetry run python ./scripts/ask_agent.py --agent "wt-smoketest-dev" "What is 1+1?"')
+            print(
+                'No question provided. Example usage:\n  poetry run python ./scripts/ask_agent.py --agent "wt-smoketest-dev" "What is 1+1?"'
+            )
             sys.exit(1)
 
     project_client = AIProjectClient(endpoint=endpoint, credential=cred)
