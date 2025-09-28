@@ -12,7 +12,7 @@ In our provided example, the application includes a sample dataset containing in
 ## If you want to use your own dataset
 To create a custom embeddings file with your own data, you can use the provided helper class `SearchIndexManager`. Below is a straightforward way to build your own embeddings:
 ```python
-from .api.search_index_manager import SearchIndexManager
+from ai.search_index_manager import SearchIndexManager
 
 search_index_manager = SearchIndexManager(
     endpoint=your_search_endpoint,

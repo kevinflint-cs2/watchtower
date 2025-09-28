@@ -27,6 +27,7 @@ from azure.core.credentials_async import AsyncTokenCredential
 from dotenv import load_dotenv
 
 from logging_config import configure_logging
+from ai import agent_manager as agent_manager
 
 load_dotenv()
 
@@ -51,55 +52,12 @@ def list_files_in_files_directory() -> List[str]:
 FILES_NAMES = list_files_in_files_directory()
 
 
-async def create_index_maybe(
-        ai_client: AIProjectClient, creds: AsyncTokenCredential) -> None:
+async def create_index_maybe(ai_client: AIProjectClient, creds: AsyncTokenCredential) -> None:
+    """Delegate to ai.agent_manager.create_index_maybe.
+
+    Kept for compatibility with callers in this module.
     """
-    Create the index and upload documents if the index does not exist.
-
-    This code is executed only once, when called on_starting hook is being
-    called. This code ensures that the index is being populated only once.
-    rag.create_index return True if the index was created, meaning that this
-    docker node have started first and must populate index.
-
-    :param ai_client: The project client to be used to create an index.
-    :param creds: The credentials, used for the index.
-    """
-    from api.search_index_manager import SearchIndexManager
-    endpoint = os.environ.get('AZURE_AI_SEARCH_ENDPOINT')
-    embedding = os.getenv('AZURE_AI_EMBED_DEPLOYMENT_NAME')    
-    if endpoint and embedding:
-        try:
-            aoai_connection = await ai_client.connections.get_default(
-                connection_type=ConnectionType.AZURE_OPEN_AI, include_credentials=True)
-        except ValueError as e:
-            logger.error("Error creating index: {e}")
-            return
-        
-        embed_api_key = None
-        if aoai_connection.credentials and isinstance(aoai_connection.credentials, ApiKeyCredentials):
-            embed_api_key = aoai_connection.credentials.api_key
-
-        search_mgr = SearchIndexManager(
-            endpoint=endpoint,
-            credential=creds,
-            index_name=os.getenv('AZURE_AI_SEARCH_INDEX_NAME'),
-            dimensions=None,
-            model=embedding,
-            deployment_name=embedding,
-            embedding_endpoint=aoai_connection.target,
-            embed_api_key=embed_api_key
-        )
-        # If another application instance already have created the index,
-        # do not upload the documents.
-        if await search_mgr.create_index(
-            vector_index_dimensions=int(
-                os.getenv('AZURE_AI_EMBED_DIMENSIONS'))):
-            embeddings_path = os.path.join(
-                os.path.dirname(__file__), 'data', 'embeddings.csv')
-
-            assert embeddings_path, f'File {embeddings_path} not found.'
-            await search_mgr.upload_documents(embeddings_path)
-            await search_mgr.close()
+    await agent_manager.create_index_maybe(ai_client, creds, os.path.dirname(__file__))
 
 
 def _get_file_path(file_name: str) -> str:
@@ -115,8 +73,8 @@ def _get_file_path(file_name: str) -> str:
 
 
 async def get_available_tool(
-        project_client: AIProjectClient,
-        creds: AsyncTokenCredential) -> Tool:
+    project_client: AIProjectClient,
+    creds: AsyncTokenCredential) -> Tool:
     """
     Get the toolset and tool definition for the agent.
 
@@ -135,100 +93,27 @@ async def get_available_tool(
                 conn_id = conn.id
                 break
 
-    toolset = AsyncToolSet()
-    if conn_id:
-        await create_index_maybe(project_client, creds)
-
-        return AzureAISearchTool(
-            index_connection_id=conn_id,
-            index_name=os.environ.get('AZURE_AI_SEARCH_INDEX_NAME'))
-    else:
-        logger.info(
-            "agent: index was not initialized, falling back to file search.")
-        
-        # Upload files for file search
-        for file_name in FILES_NAMES:
-            file_path = _get_file_path(file_name)
-            file = await project_client.agents.files.upload_and_poll(
-                file_path=file_path, purpose=FilePurpose.AGENTS)
-            # Store both file id and the file path using the file name as key.
-            file_ids.append(file.id)
-
-        # Create the vector store using the file IDs.
-        vector_store = await project_client.agents.vector_stores.create_and_poll(
-            file_ids=file_ids,
-            name="sample_store"
-        )
-        logger.info("agent: file store and vector store success")
-
-        return FileSearchTool(vector_store_ids=[vector_store.id])
+    # Delegate to the agent_manager implementation which handles both search and file fallback
+    return await agent_manager.get_available_tool(project_client, creds, os.path.dirname(__file__))
 
 
 async def create_agent(ai_client: AIProjectClient,
                        creds: AsyncTokenCredential) -> Agent:
-    logger.info("Creating new agent with resources")
-    tool = await get_available_tool(ai_client, creds)
-    toolset = AsyncToolSet()
-    toolset.add(tool)
-    
-    instructions = "Use AI Search always. Avoid to use base knowledge." if isinstance(tool, AzureAISearchTool) else "Use File Search always.  Avoid to use base knowledge."
-    
-    agent = await ai_client.agents.create_agent(
-        model=os.environ["AZURE_AI_AGENT_DEPLOYMENT_NAME"],
-        name=os.environ["AZURE_AI_AGENT_NAME"],
-        instructions=instructions,
-        toolset=toolset
-    )
-    return agent
+    # Delegate to agent_manager.create_agent
+    return await agent_manager.create_agent(ai_client, creds, os.path.dirname(__file__))
 
 
 async def initialize_resources():
-    try:
-        async with DefaultAzureCredential(
-                exclude_shared_token_cache_credential=True) as creds:
-            async with AIProjectClient(
-                credential=creds,
-                endpoint=proj_endpoint
-            ) as ai_client:
-                # If the environment already has AZURE_AI_AGENT_ID or AZURE_EXISTING_AGENT_ID, try
-                # fetching that agent
-                if agentID is not None:
-                    try:
-                        agent = await ai_client.agents.get_agent(
-                            agentID)
-                        logger.info(f"Found agent by ID: {agent.id}")
-                        return
-                    except Exception as e:
-                        logger.warning(
-                            "Could not retrieve agent by AZURE_EXISTING_AGENT_ID = "
-                            f"{agentID}, error: {e}")
-
-                # Check if an agent with the same name already exists
-                agent_list = ai_client.agents.list_agents()
-                if agent_list:
-                    async for agent_object in agent_list:
-                        if agent_object.name == os.environ[
-                                "AZURE_AI_AGENT_NAME"]:
-                            logger.info(
-                                "Found existing agent named "
-                                f"'{agent_object.name}'"
-                                f", ID: {agent_object.id}")
-                            os.environ["AZURE_EXISTING_AGENT_ID"] = agent_object.id
-                            return
-                        
-                # Create a new agent
-                agent = await create_agent(ai_client, creds)
-                os.environ["AZURE_EXISTING_AGENT_ID"] = agent.id
-                logger.info(f"Created agent, agent ID: {agent.id}")
-
-    except Exception as e:
-        logger.info("Error creating agent: {e}", exc_info=True)
-        raise RuntimeError(f"Failed to create the agent: {e}")
+    # Delegate to agent_manager.initialize_resources
+    await agent_manager.initialize_resources(os.path.dirname(__file__))
 
 
 def on_starting(server):
     """This code runs once before the workers will start."""
-    asyncio.get_event_loop().run_until_complete(initialize_resources())
+    # Delegate initialization (agent creation, resources) to agent_manager
+    asyncio.get_event_loop().run_until_complete(
+        agent_manager.initialize_resources(os.path.dirname(__file__))
+    )
 
 
 max_requests = 1000

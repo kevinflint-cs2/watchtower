@@ -1,3 +1,11 @@
+"""Backward-compatibility shim for SearchIndexManager.
+
+This module forwards imports to `src.ai.search_index_manager` to avoid breaking
+existing import paths.
+"""
+from ..ai.search_index_manager import SearchIndexManager  # type: ignore
+
+__all__ = ["SearchIndexManager"]
 from typing import Any, Dict, Optional
 
 import csv

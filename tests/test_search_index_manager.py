@@ -9,7 +9,7 @@ import unittest
 from unittest.mock import AsyncMock, patch
 from azure.identity.aio import DefaultAzureCredential
 
-from search_index_manager import SearchIndexManager
+from ai.search_index_manager import SearchIndexManager
 from azure.ai.projects.aio import AIProjectClient
 from azure.ai.projects.models._enums import ConnectionType
 from azure.core.exceptions import HttpResponseError
