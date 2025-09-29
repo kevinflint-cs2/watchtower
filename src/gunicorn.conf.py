@@ -97,23 +97,9 @@ async def get_available_tool(
     return await agent_manager.get_available_tool(project_client, creds, os.path.dirname(__file__))
 
 
-async def create_agent(ai_client: AIProjectClient,
-                       creds: AsyncTokenCredential) -> Agent:
-    # Delegate to agent_manager.create_agent
-    return await agent_manager.create_agent(ai_client, creds, os.path.dirname(__file__))
-
-
-async def initialize_resources():
-    # Delegate to agent_manager.initialize_resources
-    await agent_manager.initialize_resources(os.path.dirname(__file__))
-
-
 def on_starting(server):
     """This code runs once before the workers will start."""
-    # Delegate initialization (agent creation, resources) to agent_manager
-    asyncio.get_event_loop().run_until_complete(
-        agent_manager.initialize_resources(os.path.dirname(__file__))
-    )
+    # No agent creation or initialization here. App expects existing agent(s) only.
 
 
 max_requests = 1000
@@ -134,8 +120,3 @@ workers = (num_cpus * 2) + 1
 worker_class = "uvicorn.workers.UvicornWorker"
 
 timeout = 120
-
-if __name__ == "__main__":
-    print("Running initialize_resources directly...")
-    asyncio.run(initialize_resources())
-    print("initialize_resources finished.")
