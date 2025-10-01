@@ -124,7 +124,6 @@ async def get_project_and_agent_with_app(app, proj_endpoint: str, enable_trace: 
         yield ai_project, agent
 
 
-
 def _get_file_path(base_dir: str, file_name: str) -> str:
     return os.path.abspath(os.path.join(base_dir, 'files', file_name))
 

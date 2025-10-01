@@ -1,0 +1,31 @@
+- [x] Review App.tsx
+- [x] Test Agent Builder
+- [x] Extend Agent Builder for multiple agents
+- [x] Review AgentPreview.tsx
+- [x] Remove api_and_frontend from azure.yaml
+- [x] Remove container src code
+- [x] Comment out container modules in main.bicep or api.bicep
+- [x] Move airedteaming into src/ai
+- [x] Move evals to src/ai
+- [ ] Test latest modifications
+- [ ] Expand agent and evaluation test coverage
+	- Add negative tests (invalid agent IDs, missing env vars), evaluation tests (run evals/evaluate.py as a test, assert on output), and mock Azure SDK for unit tests. Ensure test data is minimal and synthetic for CI.
+- [ ] Refactor/remove container and IaC code
+	- Remove or fully comment out any remaining container-related modules/params in Bicep and Azure YAML. Clean up unused variables and hooks.
+- [ ] Centralize environment/config validation
+	- Create a single utility for environment variable validation and configuration loading to avoid duplication across modules.
+- [ ] Document agent workflows and evaluation process
+	- Update README with project description, architecture diagram, agentic workflow, and evaluation process. Ensure all public methods/classes have docstrings.
+- [ ] Add error handling and logging to scripts
+	- Improve shell scripts (postdeploy, env setup, etc.) with error handling and logging for easier debugging.
+- [ ] Parameterize agent creation and file paths
+	- Refactor hardcoded defaults (agent names, file paths) to be parameterized for flexibility in CI/CD and multi-agent scenarios.
+- [ ] Implement agent registry/manifest
+	- Create a registry or manifest (JSON/YAML) for agent definitions to allow new agents to be added without code changes.
+- [ ] Integrate evaluation automation into CI/CD
+	- Automate running evals/evaluate.py after deployment and report results as part of CI/CD pipeline.
+- [ ] Enhance logging and error messages
+	- Adopt structured logging (JSON or key-value) and improve actionable error messages or custom exceptions throughout the codebase.
+- [ ] Update requirements and pre-commit hooks
+	- Ensure src/requirements.txt is up to date, add constraints files for reproducibility, and include black or isort in pre-commit if not present.
+

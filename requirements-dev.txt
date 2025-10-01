@@ -1,3 +1,4 @@
+pytest-asyncio
 -r src/requirements.txt
 ruff
 pre-commit
