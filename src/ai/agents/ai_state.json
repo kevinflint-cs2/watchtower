@@ -1,9 +1,16 @@
 [
   {
-    "AGENT_ID": "asst_u60umiimGtWdzHWnbULLpyip",
-    "AGENT_NAME": "smoke-agent",
+    "AGENT_ID": "asst_jTGq9FvN5IXGQnHq1C9h9Wya",
+    "AGENT_NAME": "simple-agent",
     "AGENT_MODEL": "gpt-4o-mini",
-    "AGENT_DESCRIPTION": "A simple smoke test agent",
-    "AGENT_INSTRUCTIONS": "This is a minimal smoke test agent, respond only with 'No smoke found'"
+    "AGENT_DESCRIPTION": "A simple AI agent for basic interactions",
+    "AGENT_INSTRUCTIONS": "You are a simple AI agent. Respond briefly and helpfully."
+  },
+  {
+    "AGENT_ID": "asst_fOHhfdn2OdKIOwGMxfc2pmtD",
+    "AGENT_NAME": "contoso-fs-agent",
+    "AGENT_MODEL": "gpt-4o-mini",
+    "AGENT_DESCRIPTION": "AI agent using FileSearchTool with access to Contoso customer and product information",
+    "AGENT_INSTRUCTIONS": "You are a helpful assistant with access to Contoso customer and product information. Use the file search tool to answer questions about customers and products."
   }
 ]
