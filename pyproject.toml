@@ -1,5 +1,47 @@
+[project]
+name = "watchtower"
+version = "0.1.0"
+description = "An Agent AI for Incident Response that triages alerts, auto-enriches evidence, and orchestrates approved containment actions—under human-in-the-loop control—to cut MTTA/MTTR, standardize response, and keep a complete audit trail."
+authors = [
+    {name = "Kevin Flint",email = "kevin.flint@cybersecuritysquared.com"}
+]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.11"
+package-mode = false
+dependencies = [
+    "opentelemetry-sdk (==1.31.1)",
+    "azure-identity (==1.19.0)",
+    "azure-ai-agents (==1.0.0)",
+    "azure-ai-projects (==1.0.0b11)",
+    "azure-core (==1.34.0)",
+    "azure-core-tracing-opentelemetry (>=1.0.0b12,<2.0.0)",
+    "azure-monitor-opentelemetry (==1.6.9)",
+    "azure-search-documents (>=11.5.3,<12.0.0)"
+]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[dependency-groups]
+dev = [
+    "ruff (>=0.13.2,<0.14.0)",
+    "mypy (>=1.18.2,<2.0.0)",
+    "poethepoet (>=0.37.0,<0.38.0)",
+    "pytest (>=8.4.2,<9.0.0)"
+]
+
 [tool.ruff]
 line-length = 120
 target-version = "py39"
 lint.select = ["E", "F", "I", "UP"]
 lint.ignore = ["D203"]
+
+
+# pyproject.toml
+[tool.poe.tasks]
+lint = "ruff check ./src"
+fmt = "ruff format ./src"
+typecheck = "mypy ./src"
+test = "pytest -q"
