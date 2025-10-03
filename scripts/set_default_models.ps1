@@ -69,9 +69,9 @@ $chatDeployment = @{
 
 $aiModelDeployments = @($chatDeployment)
 
-$useSearchService = ([System.Environment]::GetEnvironmentVariable('USE_AZURE_AI_SEARCH_SERVICE', "Process"))
+$useEmbeddingModel = ([System.Environment]::GetEnvironmentVariable('USE_EMBEDDING_MODEL', "Process"))
 
-if ($useSearchService -eq 'true') {
+if ($useEmbeddingModel -eq 'true') {
     $embedDeployment = @{
         name = $envVars.AZURE_AI_EMBED_DEPLOYMENT_NAME
         model = @{

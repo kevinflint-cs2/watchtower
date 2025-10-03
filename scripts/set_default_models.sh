@@ -70,7 +70,7 @@ aiModelDeployments=(
 )
 
 # --- Optional Embed Deployment ---
-if [ "$USE_AZURE_AI_SEARCH_SERVICE" == "true" ]; then
+if [ "$USE_EMBEDDING_MODEL" == "true" ]; then
     embedDeployment_name="${envVars[AZURE_AI_EMBED_DEPLOYMENT_NAME]}"
     embedDeployment_model_name="${envVars[AZURE_AI_EMBED_MODEL_NAME]}"
     embedDeployment_model_version="${envVars[AZURE_AI_EMBED_MODEL_VERSION]}"

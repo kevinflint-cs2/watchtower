@@ -108,6 +108,9 @@ param useApplicationInsights bool = true
 @description('Do we want to use the Azure AI Search')
 param useSearchService bool = false
 
+@description('Do we want to deploy the embedding model')
+param useEmbeddingModel bool = false
+
 @description('Do we want to use the Azure Monitor tracing')
 param enableAzureMonitorTracing bool = false
 
@@ -161,7 +164,7 @@ var aiEmbeddingModel = [
 
 var aiDeployments = concat(
   aiChatModel,
-  useSearchService ? aiEmbeddingModel : [])
+  useEmbeddingModel ? aiEmbeddingModel : [])
 
 
 // Organize resources in a resource group
@@ -345,4 +348,8 @@ output AZURE_TRACING_GEN_AI_CONTENT_RECORDING_ENABLED bool = azureTracingGenAICo
 output AZURE_CONTAINER_ENVIRONMENT_NAME string = containerApps.outputs.environmentName
 output AZURE_CONTAINER_REGISTRY_ENDPOINT string = containerApps.outputs.registryLoginServer
 output SEARCH_CONNECTION_ID string = ''
+
+// Configuration validation and guidance
+output _INFO_DEPLOYMENT_CONFIG string = 'Chat Model: ${useEmbeddingModel ? 'gpt-4o-mini + text-embedding-3-small' : 'gpt-4o-mini only'}, Search Service: ${useSearchService ? 'enabled' : 'disabled'}'
+output _WARNING_SEARCH_WITHOUT_EMBEDDING string = (useSearchService && !useEmbeddingModel) ? 'WARNING: Search service enabled without embedding model - search functionality will be limited. Consider setting USE_EMBEDDING_MODEL=true' : ''
 
