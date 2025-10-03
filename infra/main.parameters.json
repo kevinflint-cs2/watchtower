@@ -14,9 +14,7 @@
     "resourceGroupName": {
       "value": "${AZURE_RESOURCE_GROUP}"
     },
-    "aiHubName": {
-      "value": "${AZURE_AIHUB_NAME}"
-    },
+
     "aiProjectName": {
       "value": "${AZURE_AIPROJECT_NAME}"
     },
@@ -29,26 +27,23 @@
     "applicationInsightsName": {
       "value": "${AZURE_APPLICATION_INSIGHTS_NAME}"
     },
-    "containerRegistryName": {
-      "value": "${AZURE_CONTAINER_REGISTRY_NAME}"
-    },
-    "keyVaultName": {
-      "value": "${AZURE_KEYVAULT_NAME}"
-    },
+
+
     "storageAccountName": {
       "value": "${AZURE_STORAGE_ACCOUNT_NAME}"
     },
     "logAnalyticsWorkspaceName": {
       "value": "${AZURE_LOG_ANALYTICS_WORKSPACE_NAME}"
     },
-    "useContainerRegistry": {
-      "value": "${USE_CONTAINER_REGISTRY=true}"
-    },
+
     "useApplicationInsights": {
       "value": "${USE_APPLICATION_INSIGHTS=true}"
     },
     "useSearchService": {
       "value": "${USE_AZURE_AI_SEARCH_SERVICE=false}"
+    },
+    "useEmbeddingModel": {
+      "value": "${USE_EMBEDDING_MODEL=false}"
     },
     "agentName": {
       "value": "${AZURE_AI_AGENT_NAME=agent-template-assistant}"
@@ -98,9 +93,7 @@
         "embeddingDeploymentDimensions": {
       "value": "${AZURE_AI_EMBED_DIMENSIONS=100}"
     },
-    "apiAppExists": {
-      "value": "${SERVICE_API_RESOURCE_EXISTS=false}"
-    },
+
     "azureExistingAIProjectResourceId": {
       "value": "${AZURE_EXISTING_AIPROJECT_RESOURCE_ID}"
     },

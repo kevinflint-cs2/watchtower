@@ -65,6 +65,7 @@ azure.yaml
 | `USE_CONTAINER_REGISTRY` | Enable/disable container registry | Bicep parameters |
 | `USE_APPLICATION_INSIGHTS` | Enable/disable App Insights | Bicep parameters |
 | `USE_AZURE_AI_SEARCH_SERVICE` | Enable/disable AI Search | Bicep parameters |
+| `USE_EMBEDDING_MODEL` | Enable/disable embedding model deployment | Bicep parameters |
 
 ### Core Infrastructure Parameters [`infra/main.parameters.json`]
 
@@ -74,6 +75,7 @@ azure.yaml
 | `location` | `AZURE_LOCATION` | - | string | All resources [`main.parameters.json` L7-9] |
 | `principalId` | `AZURE_PRINCIPAL_ID` | - | string | RBAC assignments [`main.parameters.json` L10-12] |
 | `useSearchService` | `USE_AZURE_AI_SEARCH_SERVICE` | `false` | bool | Search service conditional deployment [`main.parameters.json` L47-49] |
+| `useEmbeddingModel` | `USE_EMBEDDING_MODEL` | `false` | bool | Embedding model conditional deployment [`main.parameters.json` L50-52] |
 | `useApplicationInsights` | `USE_APPLICATION_INSIGHTS` | `true` | bool | App Insights conditional deployment [`main.parameters.json` L44-46] |
 
 ### AI Model Configuration Parameters [`infra/main.parameters.json` L50-92]
@@ -91,11 +93,19 @@ azure.yaml
 
 ### Environment Variable Resolution Path
 
-Example flow for `useSearchService` parameter:
+### Example Resolution Paths
+
+**Search Service Flow:**
 1. **Source**: `USE_AZURE_AI_SEARCH_SERVICE` environment variable [`main.parameters.json` L47-49]
-2. **Template**: Parameter passed to `main.bicep` as `useSearchService` [`main.bicep` L103]
-3. **Resource**: Conditionally deploys search service module [`main.bicep` L114-118]
-4. **Output**: Generates search endpoint output if deployed [`main.bicep` L210-211]
+2. **Template**: Parameter passed to `main.bicep` as `useSearchService` [`main.bicep` L109]
+3. **Resource**: Conditionally deploys search service module [`main.bicep` L180-184]
+4. **Output**: Generates search endpoint output if deployed [`main.bicep` L329-330]
+
+**Embedding Model Flow:**
+1. **Source**: `USE_EMBEDDING_MODEL` environment variable [`main.parameters.json` L50-52]
+2. **Template**: Parameter passed to `main.bicep` as `useEmbeddingModel` [`main.bicep` L112]
+3. **Resource**: Conditionally includes embedding model in AI deployments [`main.bicep` L164-166]
+4. **Output**: Embedding model deployed to AI Services if enabled
 
 ### Scripts Environment Variable Usage
 
@@ -113,11 +123,17 @@ Example flow for `useSearchService` parameter:
 
 ### Conditional Deployment Logic
 
-Azure AI Search is deployed conditionally based on the `useSearchService` parameter [`main.bicep` L103]:
+Azure AI Search infrastructure and embedding models are now independently controlled:
+
+- **Search Service**: Deployed based on `useSearchService` parameter [`main.bicep` L109]
+- **Embedding Model**: Deployed based on `useEmbeddingModel` parameter [`main.bicep` L112]
 
 ```bicep
 param useSearchService bool = false
+param useEmbeddingModel bool = false
 ```
+
+This separation allows embedding models to be used for scenarios beyond search (RAG, similarity, classification, etc.).
 
 ### Resource Creation Order [`infra/core/host/ai-environment.bicep` L116-129]
 
@@ -149,12 +165,27 @@ param useSearchService bool = false
 - **Target**: Search service endpoint
 - **Credentials**: Primary admin key from `search.listAdminKeys()`
 
+### Model and Service Independence
+
+**Embedding Model Uses:**
+- **Search Integration**: When both `useSearchService=true` and `useEmbeddingModel=true`
+- **RAG Applications**: Embedding-only deployment for retrieval-augmented generation
+- **Similarity Analysis**: Document/text similarity without full search infrastructure
+- **Classification**: Text classification and clustering scenarios
+
+**Configuration Combinations:**
+- `useSearchService=false, useEmbeddingModel=false`: Chat-only deployment (gpt-4o-mini)
+- `useSearchService=false, useEmbeddingModel=true`: Chat + embedding for RAG/similarity
+- `useSearchService=true, useEmbeddingModel=false`: Search infrastructure without embeddings (limited functionality)
+- `useSearchService=true, useEmbeddingModel=true`: Full search-enabled deployment
+
 ### Dependencies
 
 The search service requires:
 - **AI Services Account**: Must exist before search deployment [`ai-environment.bicep` L117]
 - **AI Project**: Search connection created within project context [`search-services.bicep` L75-96]
 - **Managed Identity**: For RBAC assignments [`search-services.bicep` L65-73]
+- **Embedding Model**: Recommended for full search functionality (though not required)
 
 ### Network Configuration
 - **Public Access**: Enabled by default [`search-services.bicep` L29]

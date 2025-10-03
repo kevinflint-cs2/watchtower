@@ -1,4 +1,9 @@
-# Define the .env file path
+# Define the .env fi$azureTracingGenAAdd-Content -Path $envFilePath -Value \"ENABLE_AZURE_MONITOR_TRACING=$enableAzureMonitorTracing\"
+Add-Content -Path $envFilePath -Value \"AZURE_TRACING_GEN_AI_CONTENT_RECORDING_ENABLED=$azureTracingGenAIContentRecordingEnabled\"
+Add-Content -Path $envFilePath -Value \"USE_EMBEDDING_MODEL=$useEmbeddingModel\"ontentRecordingEnabled = azd env get-value AZURE_TRACING_GEN_AI_CONTENT_RECORDING_ENABLED 2>$null
+$useEmbeddingModel = azd env get-value USE_EMBEDDING_MODEL 2>$null
+
+Add-Content -Path $envFilePath -Value \"AZURE_EXISTING_AIPROJECT_RESOURCE_ID=$aiProjectResourceId\"path
 $envFilePath = "src\.env"
 
 # Clear the contents of the .env file
