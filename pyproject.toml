@@ -5,7 +5,7 @@ description = "An Agent AI for Incident Response that triages alerts, auto-enric
 authors = [
     {name = "Kevin Flint",email = "kevin.flint@cybersecuritysquared.com"}
 ]
-license = {text = "MIT"}
+license = "MIT"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [

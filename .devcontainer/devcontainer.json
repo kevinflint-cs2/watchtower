@@ -17,7 +17,7 @@
             ]
         }
     },
-    "postCreateCommand": "curl -sSL https://install.python-poetry.org | python3 && export PATH=\"$HOME/.local/bin:$PATH\" && poetry --version && python3 -m pip install -e src",
+    "postCreateCommand": "/bin/bash -lc \"set -euo pipefail && python3 -m pip install --upgrade pip pipx && python3 -m pipx ensurepath && pipx install poetry && export PATH=\\\"$HOME/.local/bin:$PATH\\\" && poetry --version && poetry config virtualenvs.in-project true && poetry install\"",
     "remoteUser": "vscode",
     "hostRequirements": {
         "memory": "8gb"
