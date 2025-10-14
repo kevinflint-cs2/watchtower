@@ -4,12 +4,13 @@ create_agent_smoke.py
 Standalone script to create a simple smoke test agent in Azure AI Project.
 """
 
-import os
-import logging
-from dotenv import load_dotenv
-from azure.identity import DefaultAzureCredential
-from azure.ai.projects import AIProjectClient
 import json
+import logging
+import os
+
+from azure.ai.projects import AIProjectClient
+from azure.identity import DefaultAzureCredential
+from dotenv import load_dotenv
 
 # Optional: Enable Application Insights trace logging if connection string is set
 try:
@@ -31,7 +32,9 @@ APPINSIGHTS_CONNECTION_STRING = os.environ.get("AZURE_APPINSIGHTS_CONNECTION_STR
 # ensures smoke agents are only created when tracing is available.
 if not APPINSIGHTS_CONNECTION_STRING:
     logger.error("AZURE_APPINSIGHTS_CONNECTION_STRING is not set in the environment. Aborting smoke agent creation.")
-    raise RuntimeError("AZURE_APPINSIGHTS_CONNECTION_STRING must be set in the root .env to create a smoke agent with tracing enabled.")
+    raise RuntimeError(
+        "AZURE_APPINSIGHTS_CONNECTION_STRING must be set in the root .env to create a smoke agent with tracing enabled."
+    )
 
 
 # Get the Azure AI Project endpoint from the environment and strip quotes if present
@@ -81,7 +84,7 @@ def main():
             model=AGENT_MODEL,
             name=AGENT_NAME,
             instructions=AGENT_INSTRUCTIONS,
-            toolset=None  # No tools for a smoke test agent
+            toolset=None,  # No tools for a smoke test agent
         )
         logger.info(f"Created agent: {agent.id} (name: {agent.name})")
         print(f"Smoke agent created! ID: {agent.id}, Name: {agent.name}")
@@ -92,13 +95,13 @@ def main():
             "AGENT_NAME": AGENT_NAME,
             "AGENT_MODEL": AGENT_MODEL,
             "AGENT_DESCRIPTION": AGENT_DESCRIPTION,
-            "AGENT_INSTRUCTIONS": AGENT_INSTRUCTIONS
+            "AGENT_INSTRUCTIONS": AGENT_INSTRUCTIONS,
         }
 
         # Read or create ai_state.json as an array
         if os.path.exists(AI_STATE_PATH):
             try:
-                with open(AI_STATE_PATH, "r", encoding="utf-8") as f:
+                with open(AI_STATE_PATH, encoding="utf-8") as f:
                     state = json.load(f)
                 if not isinstance(state, list):
                     logger.warning("ai_state.json is not a list, resetting to empty list.")

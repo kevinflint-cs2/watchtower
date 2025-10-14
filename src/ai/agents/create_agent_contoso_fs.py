@@ -2,41 +2,44 @@
 create_agent_contoso_fs.py - Simple AI agent with FileSearchTool for Contoso files.
 """
 
-import os
-import json
 import glob
-from dotenv import load_dotenv
-from azure.identity import DefaultAzureCredential
+import json
+import os
+
+from azure.ai.agents.models import FilePurpose, FileSearchTool
 from azure.ai.projects import AIProjectClient
-from azure.ai.agents.models import FileSearchTool, FilePurpose
+from azure.identity import DefaultAzureCredential
+from dotenv import load_dotenv
+
 
 def save_agent_to_state(agent_id, agent_name, agent_model, agent_description, agent_instructions):
     """Save agent info to ai_state.json"""
     ai_state_path = os.path.join(os.path.dirname(__file__), "ai_state.json")
-    
+
     agent_info = {
         "AGENT_ID": agent_id,
         "AGENT_NAME": agent_name,
         "AGENT_MODEL": agent_model,
         "AGENT_DESCRIPTION": agent_description,
-        "AGENT_INSTRUCTIONS": agent_instructions
+        "AGENT_INSTRUCTIONS": agent_instructions,
     }
-    
+
     # Read existing state or create new array
     if os.path.exists(ai_state_path):
-        with open(ai_state_path, "r", encoding="utf-8") as f:
+        with open(ai_state_path, encoding="utf-8") as f:
             state = json.load(f)
         if not isinstance(state, list):
             state = []
     else:
         state = []
-    
+
     # Add agent info and save
     state.append(agent_info)
     with open(ai_state_path, "w", encoding="utf-8") as f:
         json.dump(state, f, indent=2)
-    
+
     print(f"Agent info saved to {ai_state_path}")
+
 
 # Load environment variables
 load_dotenv()
@@ -46,7 +49,10 @@ endpoint = os.environ["AZURE_EXISTING_AIPROJECT_ENDPOINT"].strip('"').strip("'")
 AGENT_NAME = "contoso-fs-agent"
 AGENT_MODEL = "gpt-4o-mini"
 AGENT_DESCRIPTION = "AI agent using FileSearchTool with access to Contoso customer and product information"
-AGENT_INSTRUCTIONS = "You are a helpful assistant with access to Contoso customer and product information. Use the file search tool to answer questions about customers and products."
+AGENT_INSTRUCTIONS = (
+    "You are a helpful assistant with access to Contoso customer and product information. "
+    "Use the file search tool to answer questions about customers and products."
+)
 
 # Create client
 credential = DefaultAzureCredential()
@@ -79,7 +85,7 @@ agent = client.agents.create_agent(
     name=AGENT_NAME,
     instructions=AGENT_INSTRUCTIONS,
     tools=file_search.definitions,
-    tool_resources=file_search.resources
+    tool_resources=file_search.resources,
 )
 
 print(f"Agent created: {agent.id}")

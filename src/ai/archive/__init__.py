@@ -3,4 +3,4 @@
 Expose modules for backwards compatibility.
 """
 
-from . import search_index_manager, agent_manager  # noqa: F401
+from . import agent_manager, search_index_manager  # noqa: F401

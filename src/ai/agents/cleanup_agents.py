@@ -7,6 +7,7 @@ src/ai/agents/ai_state.json. Supports a --debug flag to enable verbose
 logging (including Azure pipeline headers). Without --debug the script
 prints only concise summary lines.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -15,12 +16,10 @@ import logging
 import os
 from pathlib import Path
 
-from dotenv import load_dotenv
-
-from azure.identity.aio import DefaultAzureCredential
 from azure.ai.projects.aio import AIProjectClient
 from azure.core.exceptions import ResourceNotFoundError
-
+from azure.identity.aio import DefaultAzureCredential
+from dotenv import load_dotenv
 
 logger = logging.getLogger("agents_cleanup")
 

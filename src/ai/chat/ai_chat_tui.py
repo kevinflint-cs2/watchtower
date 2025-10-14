@@ -13,20 +13,19 @@ This file intentionally uses the synchronous Azure client APIs already used
 elsewhere in the repo for simplicity.
 """
 
+import argparse
 import json
+import logging
 import os
 import sys
 import time
-import logging
-import argparse
 from pathlib import Path
-from dotenv import load_dotenv
+from typing import Optional
 
-from typing import Dict, Optional
-
-from azure.identity import DefaultAzureCredential
-from azure.ai.projects import AIProjectClient
 from azure.ai.agents.models import ListSortOrder
+from azure.ai.projects import AIProjectClient
+from azure.identity import DefaultAzureCredential
+from dotenv import load_dotenv
 
 
 def init_tracing_from_project(project_endpoint: str) -> bool:
@@ -44,6 +43,7 @@ def init_tracing_from_project(project_endpoint: str) -> bool:
     if env_conn:
         try:
             from azure.monitor.opentelemetry import configure_azure_monitor
+
             configure_azure_monitor(connection_string=env_conn)
             # Only log this when debug is enabled; keep normal runs quieter.
             logger.debug("Configured Application Insights from AZURE_APPINSIGHTS_CONNECTION_STRING env var.")
@@ -64,11 +64,14 @@ def init_tracing_from_project(project_endpoint: str) -> bool:
                     except Exception as e:
                         logger.info("Sync telemetry.get_connection_string failed: %s", e)
                 else:
-                    logger.info("Sync telemetry.get_connection_string not available on this client, will try async fallback.")
+                    logger.info(
+                        "Sync telemetry.get_connection_string not available on this client, will try async fallback."
+                    )
 
                 if conn_str:
                     try:
                         from azure.monitor.opentelemetry import configure_azure_monitor
+
                         configure_azure_monitor(connection_string=conn_str)
                         logger.info("Configured Application Insights for client tracing (sync path).")
                         return True
@@ -81,6 +84,7 @@ def init_tracing_from_project(project_endpoint: str) -> bool:
         # Async fallback: use the aio client to fetch the connection string
         try:
             import asyncio
+
             from azure.ai.projects.aio import AIProjectClient as AsyncAIProjectClient
 
             async def _fetch_conn():
@@ -96,6 +100,7 @@ def init_tracing_from_project(project_endpoint: str) -> bool:
             if conn_str:
                 try:
                     from azure.monitor.opentelemetry import configure_azure_monitor
+
                     configure_azure_monitor(connection_string=conn_str)
                     logger.info("Configured Application Insights for client tracing (async path).")
                     return True
@@ -137,7 +142,9 @@ def configure_logging(debug: bool) -> None:
 
 # The ai_state.json file was moved to src/ai/agents/ai_state.json; resolve it from the workspace
 # Resolve workspace root from this file: parents[3] -> workspace root; then src/ai/agents/ai_state.json
-AI_STATE_PATH = os.path.abspath(os.path.join(Path(__file__).resolve().parents[3], "src", "ai", "agents", "ai_state.json"))
+AI_STATE_PATH = os.path.abspath(
+    os.path.join(Path(__file__).resolve().parents[3], "src", "ai", "agents", "ai_state.json")
+)
 PROJECT_ENDPOINT_ENV = "AZURE_EXISTING_AIPROJECT_ENDPOINT"
 
 
@@ -147,13 +154,16 @@ load_dotenv()
 
 def load_state(path: str):
     if not os.path.exists(path):
-        print(f"State file not found: {path}\nPlease create agents (e.g. with create_agent_smoke.py) or restore this file.")
+        print(
+            f"State file not found: {path}\n"
+            f"Please create agents (e.g. with create_agent_smoke.py) or restore this file."
+        )
         return None
     try:
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             state = json.load(f)
         if not isinstance(state, list):
-            print(f"Invalid ai_state.json format: expected a JSON array of agent objects.")
+            print("Invalid ai_state.json format: expected a JSON array of agent objects.")
             return None
         return state
     except Exception as e:
@@ -161,7 +171,7 @@ def load_state(path: str):
         return None
 
 
-def choose_agent(state: list) -> Optional[Dict]:
+def choose_agent(state: list) -> Optional[dict]:
     print("Available agents:\n")
     for i, entry in enumerate(state, start=1):
         name = entry.get("AGENT_NAME") or entry.get("AGENT_DISPLAY_NAME") or "assist-agent"
@@ -194,7 +204,7 @@ def find_agent_id_by_name(project_client: AIProjectClient, name: str) -> Optiona
     return None
 
 
-def chat_with_agent(entry: Dict):
+def chat_with_agent(entry: dict):
     # Get project endpoint
     project_endpoint = os.environ.get(PROJECT_ENDPOINT_ENV)
     if not project_endpoint:
