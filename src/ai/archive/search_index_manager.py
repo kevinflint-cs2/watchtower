@@ -4,18 +4,17 @@ This file was copied from src/api/search_index_manager.py with minimal changes t
 module/package imports.
 """
 
-from typing import Any, Dict, Optional
-
 import csv
 import glob
 import json
 import os
 import time
+from typing import Any, Optional
 
 from azure.core.credentials_async import AsyncTokenCredential
-from azure.search.documents.aio import AsyncSearchItemPaged, SearchClient 
-from azure.search.documents.indexes.aio import SearchIndexClient
 from azure.core.exceptions import HttpResponseError
+from azure.search.documents.aio import AsyncSearchItemPaged, SearchClient
+from azure.search.documents.indexes.aio import SearchIndexClient
 from azure.search.documents.indexes.models import (
     AzureOpenAIVectorizer,
     AzureOpenAIVectorizerParameters,
@@ -23,16 +22,15 @@ from azure.search.documents.indexes.models import (
     SearchField,
     SearchFieldDataType,
     SearchIndex,
-    SemanticSearch,
     SemanticConfiguration,
-    SemanticPrioritizedFields,
     SemanticField,
+    SemanticPrioritizedFields,
+    SemanticSearch,
     SimpleField,
     VectorSearch,
     VectorSearchProfile,
 )
 from azure.search.documents.models import VectorizableTextQuery
-
 
 
 class SearchIndexManager:
@@ -52,27 +50,26 @@ class SearchIndexManager:
     :param embedding_client: The embedding client, used t build the embedding. Needed only
                              to create embedding file. Not used in inference time.
     """
-    
+
     MIN_DIFF_CHARACTERS_IN_LINE = 5
     MIN_LINE_LENGTH = 5
-    
+
     _SEMANTIC_CONFIG = "semantic_search"
     _EMBEDDING_CONFIG = "embedding_config"
     _VECTORIZER = "search_vectorizer"
 
-
     def __init__(
-            self,
-            endpoint: str,
-            credential: AsyncTokenCredential,
-            index_name: str,
-            dimensions: Optional[int],
-            model: str,
-            deployment_name: str,
-            embedding_endpoint: str, 
-            embed_api_key: Optional[str],
-            embedding_client: Optional[Any] = None
-        ) -> None:
+        self,
+        endpoint: str,
+        credential: AsyncTokenCredential,
+        index_name: str,
+        dimensions: Optional[int],
+        model: str,
+        deployment_name: str,
+        embedding_endpoint: str,
+        embed_api_key: Optional[str],
+        embedding_client: Optional[Any] = None,
+    ) -> None:
         """Constructor."""
         self._dimensions = dimensions
         self._index_name = index_name
@@ -90,9 +87,10 @@ class SearchIndexManager:
         """Get search client if it is absent."""
         if self._client is None:
             self._client = SearchClient(
-                endpoint=self._endpoint, index_name=self._index.name, credential=self._credential)
+                endpoint=self._endpoint, index_name=self._index.name, credential=self._credential
+            )
         return self._client
-    
+
     async def upload_documents(self, embeddings_file: str) -> None:
         """
         Upload the embeggings file to index search.
@@ -102,15 +100,15 @@ class SearchIndexManager:
         self._raise_if_no_index()
         documents = []
         index = 0
-        with open(embeddings_file, newline='') as fp:
+        with open(embeddings_file, newline="") as fp:
             reader = csv.DictReader(fp)
             for row in reader:
                 documents.append(
                     {
-                        'embedId': str(index),
-                        'token': row['token'],
-                        'embedding': json.loads(row['embedding']),
-                        'title': row['title'] 
+                        "embedId": str(index),
+                        "token": row["token"],
+                        "embedding": json.loads(row["embedding"]),
+                        "title": row["title"],
                     }
                 )
                 index += 1
@@ -124,8 +122,8 @@ class SearchIndexManager:
         """
         if self._index is None:
             raise ValueError(
-                "Unable to perform the operation as the index is absent. "
-                "To create index please call create_index")
+                "Unable to perform the operation as the index is absent. To create index please call create_index"
+            )
 
     async def delete_index(self):
         """Delete the index from vector store."""
@@ -145,14 +143,16 @@ class SearchIndexManager:
         if vector_index_dimensions is None:
             if self._dimensions is None:
                 raise ValueError(
-                    "No embedding dimensions were provided in neither dimensions in the constructor nor in vector_index_dimensions"
-                    "Dimensions are needed to build the search index, please provide the vector_index_dimensions.")
+                    "No embedding dimensions were provided in neither dimensions in the constructor "
+                    "nor in vector_index_dimensions. Dimensions are needed to build the search index, "
+                    "please provide the vector_index_dimensions."
+                )
             vector_index_dimensions = self._dimensions
         if self._dimensions is not None and vector_index_dimensions != self._dimensions:
             raise ValueError("vector_index_dimensions is different from dimensions provided to constructor.")
         return vector_index_dimensions
 
-    async def _format_search_results(self, response: AsyncSearchItemPaged[Dict]) -> str:
+    async def _format_search_results(self, response: AsyncSearchItemPaged[dict]) -> str:
         """
         Format the output of search.
 
@@ -173,11 +173,10 @@ class SearchIndexManager:
         response = await self._get_client().search(
             search_text=message,
             query_type="full",
-            search_fields=['token', 'title'],
+            search_fields=["token", "title"],
             semantic_configuration_name=SearchIndexManager._SEMANTIC_CONFIG,
         )
         return await self._format_search_results(response)
-        
 
     async def search(self, message: str) -> str:
         """
@@ -187,24 +186,16 @@ class SearchIndexManager:
         :return: The context for the question.
         """
         self._raise_if_no_index()
-        vector_query = VectorizableTextQuery(
-            text=message,
-            k_nearest_neighbors=5,
-            fields="embedding"
-        )
+        vector_query = VectorizableTextQuery(text=message, k_nearest_neighbors=5, fields="embedding")
         response = await self._get_client().search(
             vector_queries=[vector_query],
-            select=['token', 'title'],
+            select=["token", "title"],
         )
         # This lag is necessary, despite it is not described in documentation.
         time.sleep(1)
         return await self._format_search_results(response)
 
-    async def create_index(
-        self,
-        vector_index_dimensions: Optional[int] = None,
-        raise_on_error: bool=False
-        ) -> bool:
+    async def create_index(self, vector_index_dimensions: Optional[int] = None, raise_on_error: bool = False) -> bool:
         """
         Create index or return false if it already exists.
 
@@ -230,7 +221,7 @@ class SearchIndexManager:
             async with SearchIndexClient(endpoint=self._endpoint, credential=self._credential) as ix_client:
                 self._index = await ix_client.get_index(self._index_name)
             return False
-        
+
     async def _index_create(self, vector_index_dimensions: int) -> SearchIndex:
         """
         Create the index.
@@ -252,7 +243,7 @@ class SearchIndexManager:
                     type=SearchFieldDataType.Collection(SearchFieldDataType.Single),
                     vector_search_dimensions=vector_index_dimensions,
                     searchable=True,
-                    vector_search_profile_name=SearchIndexManager._EMBEDDING_CONFIG
+                    vector_search_profile_name=SearchIndexManager._EMBEDDING_CONFIG,
                 ),
                 SearchField(name="token", searchable=True, type=SearchFieldDataType.String, hidden=False),
                 SearchField(name="title", type=SearchFieldDataType.String, hidden=False),
@@ -262,7 +253,7 @@ class SearchIndexManager:
                     VectorSearchProfile(
                         name=SearchIndexManager._EMBEDDING_CONFIG,
                         algorithm_configuration_name="embed-algorithms-config",
-                        vectorizer_name=SearchIndexManager._VECTORIZER
+                        vectorizer_name=SearchIndexManager._VECTORIZER,
                     )
                 ],
                 algorithms=[HnswAlgorithmConfiguration(name="embed-algorithms-config")],
@@ -273,10 +264,10 @@ class SearchIndexManager:
                             resource_url=self._embeddings_endpoint,
                             deployment_name=self._embedding_deployment,
                             api_key=self._embed_api_key,
-                            model_name=self._embedding_model
-                        )
+                            model_name=self._embedding_model,
+                        ),
                     )
-                ]
+                ],
             )
             semantic_search = SemanticSearch(
                 default_configuration_name=SearchIndexManager._SEMANTIC_CONFIG,
@@ -287,26 +278,23 @@ class SearchIndexManager:
                             title_field=SemanticField(field_name="title"),
                             content_fields=[
                                 SemanticField(field_name="token"),
-                            ]
-                        )
+                            ],
+                        ),
                     )
-                ] 
+                ],
             )
             search_index = SearchIndex(
-                name=self._index_name,
-                fields=fields,
-                vector_search=vector_search,
-                semantic_search=semantic_search)
+                name=self._index_name, fields=fields, vector_search=vector_search, semantic_search=semantic_search
+            )
             new_index = await ix_client.create_index(search_index)
         return new_index
-        
 
     async def build_embeddings_file(
-            self,
-            input_directory: str,
-            output_file: str,
-            sentences_per_embedding: int=4,
-            ) -> None:
+        self,
+        input_directory: str,
+        output_file: str,
+        sentences_per_embedding: int = 4,
+    ) -> None:
         """
         In this method we do lazy loading of nltk and download the needed data set to split
 
@@ -317,52 +305,57 @@ class SearchIndexManager:
                the one used for SearchIndexManager creation.
         :param input_directory: The directory with the embedding files.
         :param output_file: The file csv file to store embeddings.
-        :param embeddings_client: The embedding client, used to create embeddings. 
+        :param embeddings_client: The embedding client, used to create embeddings.
                 Must be the same as the one used for SearchIndexManager creation.
         :param sentences_per_embedding: The number of sentences used to build embedding.
         """
         import nltk
-        nltk.download('punkt')
-        
+
+        nltk.download("punkt")
+
         from nltk.tokenize import sent_tokenize
+
         # Split the data to sentence tokens.
         sentence_tokens = []
         references = []
-        globs = glob.glob(input_directory + '/*.md', recursive=True)
+        globs = glob.glob(input_directory + "/*.md", recursive=True)
         index = 0
         for fle in globs:
             with open(fle) as f:
                 for line in f:
                     line = line.strip()
                     # Skip non informative lines.
-                    if len(line) < SearchIndexManager.MIN_LINE_LENGTH or len(set(line)) < SearchIndexManager.MIN_DIFF_CHARACTERS_IN_LINE:
+                    if (
+                        len(line) < SearchIndexManager.MIN_LINE_LENGTH
+                        or len(set(line)) < SearchIndexManager.MIN_DIFF_CHARACTERS_IN_LINE
+                    ):
                         continue
                     for sentence in sent_tokenize(line):
                         if index % sentences_per_embedding == 0:
                             sentence_tokens.append(sentence)
                             references.append(os.path.split(fle)[-1])
                         else:
-                            sentence_tokens[-1] += ' '
+                            sentence_tokens[-1] += " "
                             sentence_tokens[-1] += sentence
                         index += 1
-        
-        
+
         # For each token build the embedding, which will be used in the search.
         batch_size = 2000
-        with open(output_file, 'w') as fp:
-            writer = csv.DictWriter(fp, fieldnames=['token', 'embedding', 'title'])
+        with open(output_file, "w") as fp:
+            writer = csv.DictWriter(fp, fieldnames=["token", "embedding", "title"])
             writer.writeheader()
             for i in range(0, len(sentence_tokens), batch_size):
-                emedding = (await self._embedding_client.embed(
-                    input=sentence_tokens[i:i+min(batch_size, len(sentence_tokens))],
-                    dimensions=self._dimensions,
-                    model=self._embedding_model
-                ))["data"]
+                emedding = (
+                    await self._embedding_client.embed(
+                        input=sentence_tokens[i : i + min(batch_size, len(sentence_tokens))],
+                        dimensions=self._dimensions,
+                        model=self._embedding_model,
+                    )
+                )["data"]
                 for token, float_data, reference in zip(sentence_tokens, emedding, references):
-                    writer.writerow({
-                        'token': token,
-                        'embedding': json.dumps(float_data['embedding']),
-                        'title': reference})
+                    writer.writerow(
+                        {"token": token, "embedding": json.dumps(float_data["embedding"]), "title": reference}
+                    )
 
     async def close(self):
         """Close the closeable resources, associated with SearchIndexManager."""

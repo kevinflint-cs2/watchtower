@@ -5,9 +5,9 @@ AIProjectClient for creating agents (file-search, smoke, etc). It also
 keeps module-level convenience wrappers for backward compatibility.
 """
 
-import os
 import logging
-from typing import List, Dict, Optional
+import os
+from typing import Optional
 
 from dotenv import load_dotenv
 
@@ -20,7 +20,7 @@ class AgentBuilder:
         """Read AGENT_IDS from .env and return as a list."""
         if not os.path.exists(self.env_path):
             return []
-        with open(self.env_path, "r", encoding="utf-8") as f:
+        with open(self.env_path, encoding="utf-8") as f:
             for line in f:
                 if line.startswith("AGENT_IDS="):
                     ids = line.strip().split("=", 1)[1]
@@ -43,6 +43,7 @@ class AgentBuilder:
         if agent_id in ids:
             ids.remove(agent_id)
             self._set_agent_ids(ids)
+
     """Class that encapsulates Azure AI Project interactions for building agents.
 
     Usage:
@@ -78,8 +79,8 @@ class AgentBuilder:
 
     # Async context manager methods to manage credential & client lifecycle
     async def __aenter__(self):
-        from azure.identity.aio import DefaultAzureCredential
         from azure.ai.projects.aio import AIProjectClient
+        from azure.identity.aio import DefaultAzureCredential
 
         self._creds = DefaultAzureCredential(exclude_shared_token_cache_credential=True)
         await self._creds.__aenter__()
@@ -114,10 +115,10 @@ class AgentBuilder:
                 return False
 
         # Read existing lines
-        with open(self.env_path, "r", encoding="utf-8") as f:
+        with open(self.env_path, encoding="utf-8") as f:
             lines = f.readlines()
 
-        new_lines: List[str] = []
+        new_lines: list[str] = []
         found = False
         for ln in lines:
             if ln.strip().startswith(f"{key}="):
@@ -139,11 +140,11 @@ class AgentBuilder:
         os.replace(tmp_path, self.env_path)
         return True
 
-    async def _upload_files(self, files_dir: str) -> List[str]:
+    async def _upload_files(self, files_dir: str) -> list[str]:
         """Upload all files under files_dir to the project and return file ids."""
         from azure.ai.agents.models import FilePurpose
 
-        file_ids: List[str] = []
+        file_ids: list[str] = []
         if not files_dir:
             files_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../files"))
 
@@ -155,7 +156,7 @@ class AgentBuilder:
                 file_ids.append(file.id)
         return file_ids
 
-    async def _create_vector_store(self, file_ids: List[str], name: Optional[str] = None) -> str:
+    async def _create_vector_store(self, file_ids: list[str], name: Optional[str] = None) -> str:
         if not name:
             name = "file_search_store"
         vs = await self._client.agents.vector_stores.create_and_poll(file_ids=file_ids, name=name)
@@ -171,12 +172,12 @@ class AgentBuilder:
         instructions: Optional[str] = None,
         env_key: str = "FILE_AGENT_ID",
         overwrite_env: bool = True,
-    ) -> Dict:
+    ) -> dict:
         """Create a FileSearch agent: upload files, create vector store, create tool and agent.
 
         Returns a dict with keys: id, name, vector_store_id, file_ids.
         """
-        from azure.ai.agents.models import FileSearchTool, AsyncToolSet
+        from azure.ai.agents.models import AsyncToolSet, FileSearchTool
 
         file_ids = await self._upload_files(files_dir or os.path.join(self.base_dir, "files"))
         vector_store_id = await self._create_vector_store(file_ids, name=vector_store_name)
@@ -208,7 +209,7 @@ class AgentBuilder:
         instructions: Optional[str] = None,
         env_key: str = "SMOKE_AGENT_ID",
         overwrite_env: bool = True,
-    ) -> Dict:
+    ) -> dict:
         """Create a minimal smoke-test agent (no tools).
 
         Returns dict with id and name.
