@@ -1,0 +1,1 @@
+I want to use the Python SDK to create Azure AI Foundry Agentic AI solution to read from ./src/data/process_recon and use as a file search and identify suspicious processes 
