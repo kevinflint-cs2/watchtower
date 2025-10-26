@@ -1,0 +1,65 @@
+[
+  {
+    "domain": "github-login.com",
+    "looks_like": "github-login.com",
+    "similarity": 1.0,
+    "reason": "char_swap",
+    "matched_from": "variant"
+  },
+  {
+    "domain": "azur3.com",
+    "looks_like": "azur3.com",
+    "similarity": 1.0,
+    "reason": "char_swap",
+    "matched_from": "variant"
+  },
+  {
+    "domain": "office365-secure.com",
+    "looks_like": "office365-secure.com",
+    "similarity": 1.0,
+    "reason": "char_swap",
+    "matched_from": "variant"
+  },
+  {
+    "domain": "stackoverflow.co",
+    "looks_like": "stackoverflow.co",
+    "similarity": 1.0,
+    "reason": "char_swap",
+    "matched_from": "variant"
+  },
+  {
+    "domain": "goog1e.com",
+    "looks_like": "goog1e.com",
+    "similarity": 1.0,
+    "reason": "char_swap",
+    "matched_from": "variant"
+  },
+  {
+    "domain": "linkedin-career.com",
+    "looks_like": "linkedin-career.com",
+    "similarity": 1.0,
+    "reason": "char_swap",
+    "matched_from": "variant"
+  },
+  {
+    "domain": "micros0ft.com",
+    "looks_like": "microsoft.com",
+    "similarity": 0.855,
+    "reason": "char_swap",
+    "matched_from": "approved"
+  },
+  {
+    "domain": "faceb00k.com",
+    "looks_like": "faceb0ok.com",
+    "similarity": 0.846,
+    "reason": "char_swap",
+    "matched_from": "variant"
+  },
+  {
+    "domain": "amazom.com",
+    "looks_like": "amazon.com",
+    "similarity": 0.817,
+    "reason": "char_swap",
+    "matched_from": "approved"
+  }
+]
